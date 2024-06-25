@@ -1,0 +1,159 @@
+use std::{collections::HashMap, fmt::Display, str::FromStr};
+
+use crate::{letter::Letter, letter_state::LetterState};
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+pub struct Word<const LEN: usize> {
+    letters: [Letter; LEN]
+}
+
+impl<const LEN: usize> Word<LEN> {
+    pub fn letters_map(self) -> LettersMap {
+        LettersMap::from_iter(self.letters)
+    }
+
+    pub fn guess_letters(self, letters: [Letter; LEN]) -> super::guess::Guess<LEN> {
+        let mut guess = crate::guess::Guess::none_present(letters);
+        let mut map = self.letters_map();
+
+        for (guess, answer) in guess
+            .iter_mut()
+            .zip(self.letters.into_iter())
+        {
+            if guess.0 == answer {
+                guess.1 = LetterState::Correct;
+                map.decrement(guess.0);
+            }
+        }
+
+        for guess in guess
+            .iter_mut()
+        {  
+            if map.contains_letter(guess.0) {
+                guess.1 = LetterState::WrongPlace;
+                map.decrement(guess.0);
+            }
+        }
+
+        guess
+    }
+}
+
+pub enum ParseWordError {
+    ParseLetter(super::letter::ParseLetterError),
+    WrongLength {
+        expected: usize,
+        got: usize
+    }
+}
+
+impl<const LEN: usize> From<[Letter; LEN]> for Word<LEN> {
+    fn from(value: [Letter; LEN]) -> Self {
+        Self { letters: value }
+    }
+}
+
+impl<const LEN: usize> TryFrom<Vec<Letter>> for Word<LEN> {
+    type Error = ParseWordError;
+
+    fn try_from(value: Vec<Letter>) -> Result<Self, Self::Error> {
+        let array: [Letter; LEN] = value.try_into()
+        .map_err(|err: Vec<Letter>| ParseWordError::WrongLength { expected: LEN, got: err.len() })?;
+    
+        Ok(array.into())
+    }
+}
+
+impl<const LEN: usize> FromStr for Word<LEN> {
+    type Err = ParseWordError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let letters: Vec<Letter> = s.chars()
+            .map(Letter::try_from)
+            .collect::<Result<_, _>>()
+            .map_err(ParseWordError::ParseLetter)?;
+
+        letters.try_into()
+    }
+}
+
+impl<const LEN: usize> Display for Word<LEN> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        for letter in &self.letters {
+            Display::fmt(letter, f)?;
+        }
+
+        Ok(())
+    }
+}
+
+impl<const LEN: usize> PartialEq<str> for Word<LEN> {
+    fn eq(&self, other: &str) -> bool {
+        self.to_string().as_str().eq(other)
+    }
+}
+
+#[derive(Default, Debug, Clone)]
+pub struct LettersMap {
+    hash_map: HashMap<Letter, usize>
+}
+
+impl LettersMap {
+    pub fn new() -> Self {
+        HashMap::new().into()
+    }
+
+    pub fn count_letter(&self, letter: Letter) -> usize {
+        self.hash_map.get(&letter).copied().unwrap_or_default()
+    }
+
+    pub fn contains_letter(&self, letter: Letter) -> bool {
+        self.hash_map.contains_key(&letter)
+    }
+
+    pub fn insert(&mut self, letter: Letter) {
+        self.hash_map.insert(letter, 1);
+    }
+
+    pub fn increment(&mut self, letter: Letter) {
+        if let Some(count) = self.hash_map.get_mut(&letter) {
+            *count += 1;
+        } else {
+            self.insert(letter)
+        }
+    }
+
+    pub fn decrement(&mut self, letter: Letter) -> Option<usize> {
+        if self.contains_letter(letter) {
+            if self.count_letter(letter) == 1 {
+                self.hash_map.remove(&letter);
+                Some(0)
+            } else {
+                let count = self.hash_map.get_mut(&letter)
+                    .expect("already checked that the map contains this letter");
+                *count -= 1; // will never be 0
+                Some(*count)
+            }
+        } else {
+            None
+        }
+    }
+}
+
+impl From<HashMap<Letter, usize>> for LettersMap {
+    fn from(value: HashMap<Letter, usize>) -> Self {
+        Self { hash_map: value }
+    }
+}
+
+impl FromIterator<Letter> for LettersMap {
+    fn from_iter<T: IntoIterator<Item = Letter>>(iter: T) -> Self {
+        let mut map = Self::new();
+
+        for letter in iter {
+            map.increment(letter);
+        }
+
+        map
+    }
+}
