@@ -3,7 +3,7 @@ name: CI
 on:
   push:
     paths-ignore: [ "README.md" ]
-    branches: [ "main" ]
+    branches: [ "master" ]
 
   pull_request:
     types: [opened, synchronize, reopened]
