@@ -1,8 +1,13 @@
+use std::{
+    ops::{Index, IndexMut},
+    str::FromStr,
+};
+
 use super::letter::Letter;
 
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Letters<const N: usize, L = Letter> {
-    array: [L; N]
+    array: [L; N],
 }
 
 impl<const N: usize> Letters<N> {
@@ -16,89 +21,86 @@ impl<const N: usize, L> Letters<N, L> {
         let array = self.array.map(f);
         Letters { array }
     }
-}
 
-pub struct Iter<'a> {
-    slice: &'a [Letter],
-    index: usize,
-}
-
-impl<'a> Iter<'a> {
-    fn new(slice: &'a [Letter]) -> Self {
-        Self {
-            slice,
-            index: 0
-        }
+    pub fn iter_mut(&mut self) -> std::slice::IterMut<'_, L> {
+        self.array.iter_mut()
     }
 }
 
-impl<'a> Iterator for Iter<'a> {
-    type Item = &'a Letter;
-
-    fn next(&mut self) -> Option<Self::Item> {
-        let item = self.slice.get(self.index);
-        self.index += 1;
-        item
+impl<const N: usize> From<Letters<N>> for [Letter; N] {
+    fn from(value: Letters<N>) -> Self {
+        value.array
     }
 }
 
-impl<'a, const N: usize> IntoIterator for &'a Letters<N> {
-    type IntoIter = Iter<'a>;
-    type Item = &'a Letter;
-
-    fn into_iter(self) -> Self::IntoIter {
-        Iter::new(&self.array)
-    }
-}
-
-pub struct IntoIter<const N: usize> {
-    index: usize,
-    array: [Letter; N],
-}
-
-impl<const N: usize> IntoIter<N> {
-    fn new(array: [Letter; N]) -> Self {
-        Self {
-            index: 0,
-            array
-        }
-    }
-}
-
-impl<const N: usize> Iterator for IntoIter<N> {
-    type Item = Letter;
-
-    fn next(&mut self) -> Option<Self::Item> {
-        let item = self.array.get(self.index).copied();
-        self.index += 1;
-        item
-    }
-}
-
-impl<const N: usize> IntoIterator for Letters<N> {
-    type IntoIter = IntoIter<N>;
-    type Item = Letter;
-
-    fn into_iter(self) -> Self::IntoIter {
-        IntoIter::new(self.array)
+impl<const N: usize> From<Letters<N>> for Vec<Letter> {
+    fn from(value: Letters<N>) -> Self {
+        value.array.to_vec()
     }
 }
 
 pub type Standard = Letters<5>;
 
-pub trait CountLetters {
-    fn count_letters(&self) -> usize;
+pub enum ParseLettersError {
+    ParseLetter(super::letter::ParseLetterError),
+    WrongLength { expected: usize, got: usize },
+}
 
-    fn ensure_letters(&self, other: &impl CountLetters) -> Result<(), CountLettersError> {
-        if self.count_letters() == other.count_letters() {
-            Ok(())
-        } else {
-            Err(CountLettersError { expected: self.count_letters(), got: other.count_letters() })
-        }
+impl<const N: usize> From<[Letter; N]> for Letters<N> {
+    fn from(value: [Letter; N]) -> Self {
+        Self { array: value }
     }
 }
 
-pub struct CountLettersError {
-    expected: usize,
-    got: usize
+impl<const N: usize> TryFrom<Vec<Letter>> for Letters<N> {
+    type Error = ParseLettersError;
+
+    fn try_from(value: Vec<Letter>) -> Result<Self, Self::Error> {
+        let array: [Letter; N] =
+            value
+                .try_into()
+                .map_err(|vec: Vec<Letter>| ParseLettersError::WrongLength {
+                    expected: N,
+                    got: vec.len(),
+                })?;
+
+        Ok(array.into())
+    }
+}
+
+impl<const N: usize, L> Index<usize> for Letters<N, L> {
+    type Output = L;
+
+    fn index(&self, index: usize) -> &Self::Output {
+        self.array.index(index)
+    }
+}
+
+impl<const N: usize, L> IndexMut<usize> for Letters<N, L> {
+    fn index_mut(&mut self, index: usize) -> &mut Self::Output {
+        self.array.index_mut(index)
+    }
+}
+
+impl<const N: usize, L> IntoIterator for Letters<N, L> {
+    type Item = L;
+    type IntoIter = std::array::IntoIter<Self::Item, N>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.array.into_iter()
+    }
+}
+
+impl<const N: usize> FromStr for Letters<N> {
+    type Err = ParseLettersError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let letters: Vec<Letter> = s
+            .chars()
+            .map(Letter::try_from)
+            .collect::<Result<_, _>>()
+            .map_err(ParseLettersError::ParseLetter)?;
+
+        letters.try_into()
+    }
 }

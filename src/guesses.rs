@@ -43,10 +43,23 @@ impl<const N: usize> Guesses<N> {
     pub fn as_slice(&self) -> &[Guess<N>] {
         &self.vec
     }
+
+    pub fn iter(&self) -> <&Self as IntoIterator>::IntoIter {
+        self.into_iter()
+    }
 }
 
 impl Default for Classic {
     fn default() -> Self {
         Self::new(6)
+    }
+}
+
+impl<'a, const N: usize> IntoIterator for &'a Guesses<N> {
+    type Item = &'a Guess<N>;
+    type IntoIter = std::slice::Iter<'a, Guess<N>>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.as_slice().into_iter()
     }
 }

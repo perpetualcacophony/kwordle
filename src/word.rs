@@ -1,34 +1,57 @@
 use std::{collections::HashMap, fmt::Display, str::FromStr};
 
-use crate::{letter::Letter, letter_state::LetterState};
+use crate::{
+    letter::Letter,
+    letter_state::LetterState,
+    letters::{Letters, ParseLettersError},
+};
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Word<const LEN: usize> {
-    letters: [Letter; LEN]
+    letters: Letters<LEN>,
 }
 
 impl<const LEN: usize> Word<LEN> {
+    pub(crate) fn new_unchecked(letters: Letters<LEN>) -> Self {
+        Self { letters }
+    }
+
+    pub fn from_letters(
+        list: &impl crate::WordsList<LEN>,
+        letters: Letters<LEN>,
+    ) -> Result<Self, ParseWordError> {
+        let unchecked = Self::new_unchecked(letters);
+
+        if list.contains(unchecked) {
+            Ok(unchecked)
+        } else {
+            Err(ParseWordError::NotInList {
+                letters: unchecked.letters.into(),
+            })
+        }
+    }
+
+    pub fn from_str(list: &impl crate::WordsList<LEN>, s: &str) -> Result<Self, ParseWordError> {
+        let letters = Letters::from_str(s)?;
+        Self::from_letters(list, letters)
+    }
+
     pub fn letters_map(self) -> LettersMap {
         LettersMap::from_iter(self.letters)
     }
 
-    pub fn guess_letters(self, letters: [Letter; LEN]) -> super::guess::Guess<LEN> {
-        let mut guess = crate::guess::Guess::none_present(letters);
+    pub fn guess_word(self, word: Self) -> super::guess::Guess<LEN> {
+        let mut guess = crate::guess::Guess::none_present(word.letters);
         let mut map = self.letters_map();
 
-        for (guess, answer) in guess
-            .iter_mut()
-            .zip(self.letters.into_iter())
-        {
+        for (guess, answer) in guess.iter_mut().zip(self.letters.into_iter()) {
             if guess.0 == answer {
                 guess.1 = LetterState::Correct;
                 map.decrement(guess.0);
             }
         }
 
-        for guess in guess
-            .iter_mut()
-        {  
+        for guess in guess.iter_mut() {
             if map.contains_letter(guess.0) {
                 guess.1 = LetterState::WrongPlace;
                 map.decrement(guess.0);
@@ -37,50 +60,32 @@ impl<const LEN: usize> Word<LEN> {
 
         guess
     }
+
+    pub fn guess_str(
+        self,
+        list: &impl crate::WordsList<LEN>,
+        s: &str,
+    ) -> Result<super::Guess<LEN>, ParseWordError> {
+        let word = Self::from_str(list, s)?;
+        Ok(self.guess_word(word))
+    }
 }
 
 pub enum ParseWordError {
-    ParseLetter(super::letter::ParseLetterError),
-    WrongLength {
-        expected: usize,
-        got: usize
-    }
+    ParseLetters(ParseLettersError),
+    NotInList { letters: Vec<Letter> },
 }
 
-impl<const LEN: usize> From<[Letter; LEN]> for Word<LEN> {
-    fn from(value: [Letter; LEN]) -> Self {
-        Self { letters: value }
-    }
-}
-
-impl<const LEN: usize> TryFrom<Vec<Letter>> for Word<LEN> {
-    type Error = ParseWordError;
-
-    fn try_from(value: Vec<Letter>) -> Result<Self, Self::Error> {
-        let array: [Letter; LEN] = value.try_into()
-        .map_err(|err: Vec<Letter>| ParseWordError::WrongLength { expected: LEN, got: err.len() })?;
-    
-        Ok(array.into())
-    }
-}
-
-impl<const LEN: usize> FromStr for Word<LEN> {
-    type Err = ParseWordError;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let letters: Vec<Letter> = s.chars()
-            .map(Letter::try_from)
-            .collect::<Result<_, _>>()
-            .map_err(ParseWordError::ParseLetter)?;
-
-        letters.try_into()
+impl From<ParseLettersError> for ParseWordError {
+    fn from(value: ParseLettersError) -> Self {
+        Self::ParseLetters(value)
     }
 }
 
 impl<const LEN: usize> Display for Word<LEN> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        for letter in &self.letters {
-            Display::fmt(letter, f)?;
+        for letter in self.letters {
+            Display::fmt(&letter, f)?;
         }
 
         Ok(())
@@ -95,7 +100,7 @@ impl<const LEN: usize> PartialEq<str> for Word<LEN> {
 
 #[derive(Default, Debug, Clone)]
 pub struct LettersMap {
-    hash_map: HashMap<Letter, usize>
+    hash_map: HashMap<Letter, usize>,
 }
 
 impl LettersMap {
@@ -129,7 +134,9 @@ impl LettersMap {
                 self.hash_map.remove(&letter);
                 Some(0)
             } else {
-                let count = self.hash_map.get_mut(&letter)
+                let count = self
+                    .hash_map
+                    .get_mut(&letter)
                     .expect("already checked that the map contains this letter");
                 *count -= 1; // will never be 0
                 Some(*count)
