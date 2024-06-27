@@ -8,3 +8,6 @@ license-file = "LICENSE.md"
 
 [dependencies]
 rand = "0.8.5"
+
+[dev-dependencies]
+assert-impl = "0.1.3"
