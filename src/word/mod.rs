@@ -1,8 +1,8 @@
 use std::{fmt::Display, str::FromStr};
 
 use crate::{
+    letter::letters::{Letters, ParseLettersError},
     letter_state::LetterState,
-    letters::{Letters, ParseLettersError},
 };
 
 mod letters_map;

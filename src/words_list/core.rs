@@ -2,7 +2,7 @@ use std::{collections::HashSet, str::FromStr};
 
 use rand::seq::IteratorRandom;
 
-use crate::{letters::ParseLettersError, Letters, Word};
+use crate::{letter::letters::ParseLettersError, Letters, Word};
 
 #[allow(unused_imports)]
 use crate::WordsList;

@@ -1,4 +1,4 @@
-use crate::{letters::ParseLettersError, word::Word};
+use crate::{letter::letters::ParseLettersError, word::Word};
 
 mod core;
 pub use core::WordsListCore;

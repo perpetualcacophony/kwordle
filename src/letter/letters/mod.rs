@@ -3,7 +3,10 @@ use std::{
     str::FromStr,
 };
 
-use super::letter::Letter;
+use crate::Letter;
+
+mod error;
+pub use error::ParseLettersError;
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Letters<const N: usize, L = Letter> {
@@ -40,12 +43,6 @@ impl<const N: usize> From<Letters<N>> for Vec<Letter> {
 }
 
 pub type Standard = Letters<5>;
-
-#[derive(Debug, Clone)]
-pub enum ParseLettersError {
-    ParseLetter(super::letter::ParseLetterError),
-    WrongLength { expected: usize, got: usize },
-}
 
 impl<const N: usize> From<[Letter; N]> for Letters<N> {
     fn from(value: [Letter; N]) -> Self {

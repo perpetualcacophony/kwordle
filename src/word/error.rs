@@ -1,6 +1,5 @@
+use crate::letter::letters::ParseLettersError;
 use crate::letter::Letter;
-
-use crate::letters::ParseLettersError;
 
 #[derive(Debug, Clone)]
 pub enum ParseWordError {
@@ -26,7 +25,7 @@ impl std::error::Error for ParseWordError {
 impl std::fmt::Display for ParseWordError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Self::ParseLetters(err) => write!(f, "{err}"),
+            Self::ParseLetters(err) => write!(f, "failed to parse letters: {err}"),
             Self::NotInList { letters } => write!(f, "letters {letters:?} not found in list"),
         }
     }

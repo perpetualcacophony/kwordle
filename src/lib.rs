@@ -2,9 +2,7 @@ pub mod letter;
 
 #[doc(inline)]
 pub use letter::Letter;
-
-pub mod letters;
-pub use letters::Letters;
+pub use letter::Letters;
 
 pub mod letter_state;
 

@@ -1,5 +1,11 @@
 use std::{fmt::Write, str::FromStr};
 
+pub mod letters;
+pub use letters::Letters;
+
+mod error;
+pub use error::ParseLetterError;
+
 macro_rules! match_letter {
     ($var:expr; $($letter:ident => $expr:expr),+) => {
         match $var {
@@ -106,21 +112,5 @@ impl FromStr for Letter {
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let ch = char::from_str(s).map_err(ParseLetterError::parse_char)?;
         Self::try_from(ch)
-    }
-}
-
-#[derive(Debug, Clone)]
-pub enum ParseLetterError {
-    InvalidChar(char),
-    ParseChar(std::char::ParseCharError),
-}
-
-impl ParseLetterError {
-    pub fn invalid_char(value: char) -> Self {
-        Self::InvalidChar(value)
-    }
-
-    pub fn parse_char(error: std::char::ParseCharError) -> Self {
-        Self::ParseChar(error)
     }
 }
