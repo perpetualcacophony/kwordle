@@ -1,5 +1,6 @@
 use std::{collections::HashSet, str::FromStr};
 
+#[cfg(feature = "rand")]
 use rand::seq::IteratorRandom;
 
 use crate::{letter::letters::ParseLettersError, Letters, Word};
@@ -20,11 +21,13 @@ pub trait WordsListCore<const WORD_LEN: usize> {
     ///
     /// If this type is [`IntoIterator<Item = &Word>`](std::iter::IntoIterator),
     /// consider implementing this method using [`choose_random`](#method.choose_random).
+    #[cfg(feature = "rand")]
     fn try_random<R: rand::Rng + ?Sized>(&self, rng: &mut R) -> Option<Word<WORD_LEN>>;
 
     /// Uses [`rand::seq::IteratorRandom`] to choose
     /// a random item from the collection,
     /// or None if the collection is empty.
+    #[cfg(feature = "rand")]
     fn choose_random<R>(&self, rng: &mut R) -> Option<Word<WORD_LEN>>
     where
         R: rand::Rng + ?Sized,
@@ -60,6 +63,7 @@ impl<const N: usize> WordsListCore<N> for HashSet<Word<N>> {
         self.is_empty()
     }
 
+    #[cfg(feature = "rand")]
     fn try_random<R: rand::Rng + ?Sized>(&self, rng: &mut R) -> Option<Word<N>> {
         self.choose_random(rng)
     }

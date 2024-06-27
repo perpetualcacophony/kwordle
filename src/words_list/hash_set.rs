@@ -15,6 +15,7 @@ impl<const N: usize> super::WordsListCore<N> for HashSetWordsList<N> {
         self.set.is_empty()
     }
 
+    #[cfg(feature = "rand")]
     fn try_random<R: rand::Rng + ?Sized>(&self, rng: &mut R) -> Option<Word<N>> {
         self.set.try_random(rng)
     }

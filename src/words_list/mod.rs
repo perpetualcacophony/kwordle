@@ -148,6 +148,7 @@ pub trait WordsList<const WORD_LEN: usize>: WordsListCore<WORD_LEN> {
     ///
     /// # Panics
     /// Panics if the list is empty.
+    #[cfg(feature = "rand")]
     fn random_with<R: rand::Rng + ?Sized>(&self, rng: &mut R) -> Word<WORD_LEN> {
         WordsListCore::try_random(self, rng).expect("should not be empty")
     }
@@ -160,6 +161,7 @@ pub trait WordsList<const WORD_LEN: usize>: WordsListCore<WORD_LEN> {
     ///
     /// # Panics
     /// Panics if the list is empty.
+    #[cfg(feature = "rand")]
     fn random(&self) -> Word<WORD_LEN> {
         self.random_with(&mut rand::thread_rng())
     }
@@ -191,6 +193,7 @@ impl<const N: usize, G: WordsList<N>, A: WordsList<N>> GuessesAndAnswersList<G, 
         self.guesses.contains(word) || self.answers.contains(word)
     }
 
+    #[cfg(feature = "rand")]
     fn random_answer(&self) -> Word<N> {
         self.answers.random()
     }
