@@ -41,6 +41,7 @@ impl<const N: usize> From<Letters<N>> for Vec<Letter> {
 
 pub type Standard = Letters<5>;
 
+#[derive(Debug, Clone)]
 pub enum ParseLettersError {
     ParseLetter(super::letter::ParseLetterError),
     WrongLength { expected: usize, got: usize },

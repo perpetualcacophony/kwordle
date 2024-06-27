@@ -37,7 +37,7 @@ pub enum Letter {
     W,
     X,
     Y,
-    Z
+    Z,
 }
 
 impl Letter {
@@ -95,7 +95,7 @@ impl TryFrom<char> for Letter {
             'x' => Ok(Letter::X),
             'y' => Ok(Letter::Y),
             'z' => Ok(Letter::Z),
-            other => Err(ParseLetterError::invalid_char(other))
+            other => Err(ParseLetterError::invalid_char(other)),
         }
     }
 }
@@ -109,6 +109,7 @@ impl FromStr for Letter {
     }
 }
 
+#[derive(Debug, Clone)]
 pub enum ParseLetterError {
     InvalidChar(char),
     ParseChar(std::char::ParseCharError),
