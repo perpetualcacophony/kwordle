@@ -13,4 +13,5 @@ rand = { version = "0.8.5", optional = true }
 assert-impl = "0.1.3"
 
 [features]
-default = ["rand"]
+default = ["rand_full"]
+rand_full = ["rand", "rand/std", "rand/std_rng"]
