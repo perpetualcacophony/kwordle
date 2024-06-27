@@ -6,6 +6,10 @@ use crate::{
     letters::{Letters, ParseLettersError},
 };
 
+#[allow(unused_imports)]
+use crate::WordsList;
+
+/// Represents a single valid word from a specific [`WordsList`].
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Word<const LEN: usize> {
     letters: Letters<LEN>,

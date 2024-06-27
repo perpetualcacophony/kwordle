@@ -11,12 +11,12 @@ A trait for using a specific set of words.
 
 To simplify the usage of this API, a collection implementing this trait
 **must not** be empty. Methods in this trait may panic if used on
- an empty collection.
+an empty collection.
 
- Typically, this trait will not require any method definitions:
- ```
- # struct MyWordsList<const N: usize>;
- # use kwordle::{WordsList, Word};
+Typically, implementing this trait will not require any method definitions:
+```
+# struct MyWordsList<const N: usize>;
+# use kwordle::{WordsList, Word};
 # impl<const N: usize> kwordle::words_list::WordsListCore<N> for MyWordsList<N> {
 #       fn is_empty(&self) -> bool {
 #           false
@@ -33,26 +33,25 @@ To simplify the usage of this API, a collection implementing this trait
 #        fn from_words<It: IntoIterator<Item = Word<N>>>(words: It) -> Self {
 #            Self
 #        }
- # }
+# }
+#
+impl<const N: usize> WordsList<N> for MyWordsList<N> {}
+```
+However, take care that a collection implementing this trait
+cannot be constructed with no items.
 
-
- impl<const N: usize> WordsList<N> for MyWordsList<N> {}
- ```
- However, take care that a collection implementing this trait
- cannot be created with no items.
-
- ```should_panic
- # use kwordle::{Word, WordsList};
-
- # struct HashSet<T>(Option<T>);
-
- # impl<T> HashSet<T> {
- # fn new() -> Self {
- #     Self(None)
- #   }
- # }
-
- # impl<const N: usize> kwordle::words_list::WordsListCore<N> for HashSet<Word<N>> {
+```should_panic
+# use kwordle::{Word, WordsList};
+#
+# struct HashSet<T>(Option<T>);
+#
+# impl<T> HashSet<T> {
+# fn new() -> Self {
+#     Self(None)
+#   }
+# }
+#
+# impl<const N: usize> kwordle::words_list::WordsListCore<N> for HashSet<Word<N>> {
 #       fn is_empty(&self) -> bool {
 #           false
 #        }
@@ -68,23 +67,23 @@ To simplify the usage of this API, a collection implementing this trait
 #        fn from_words<It: IntoIterator<Item = Word<N>>>(words: It) -> Self {
 #            Self(None)
 #        }
- # }
+# }
+#
+impl<const N: usize> WordsList<N> for HashSet<Word<N>> {}
 
- impl<const N: usize> WordsList<N> for HashSet<Word<N>> {}
+let list = HashSet::<Word<5>>::new();
+let word = list.random(); // This panics!
+```
 
- let list = HashSet::<Word<5>>::new();
- let word = list.random(); // This panics!
- ```
-
- The safest option is to implement this trait for a wrapper struct.
- ```no_run
+The safest option is to implement this trait for a wrapper struct.
+```no_run
 # use kwordle::{Word, WordsList};
 # use std::collections::HashSet;
-
- struct MyWordsList<const N: usize> {
-     hash_set: HashSet<Word<N>>
- }
-
+#
+struct MyWordsList<const N: usize> {
+    hash_set: HashSet<Word<N>>
+}
+#
 # impl kwordle::words_list::WordsListCore<5> for MyWordsList<5> {
 #       fn is_empty(&self) -> bool {
 #           false
@@ -101,15 +100,15 @@ To simplify the usage of this API, a collection implementing this trait
 #        fn from_words<It: IntoIterator<Item = Word<5>>>(words: It) -> Self {
 #            Self { hash_set: std::default::Default::default() }
 #        }
- # }
+# }
+#
+impl WordsList<5> for MyWordsList<5> {}
 
- impl WordsList<5> for MyWordsList<5> {}
+let list = MyWordsList::<5>::from_str("/* words here... */")?;
+let word = list.random(); // This works!
 
- let list = MyWordsList::<5>::from_str("/* words here... */")?;
- let word = list.random(); // This works!
-
- # Ok::<_, kwordle::words_list::ParseWordsListError>(())
- ```
+# Ok::<_, kwordle::words_list::ParseWordsListError>(())
+```
 */
 pub trait WordsList<const WORD_LEN: usize>: WordsListCore<WORD_LEN> {
     /// Checks if this list contains the given word.
@@ -144,7 +143,7 @@ pub trait WordsList<const WORD_LEN: usize>: WordsListCore<WORD_LEN> {
 
     /// Returns a random [`Word`] from this list.
     ///
-    /// Consider using [`random`](WordsList::random) if you don't need
+    /// Consider using [`random`](#method.random) if you don't need
     /// to use a cached [`Rng`](rand::Rng).
     ///
     /// # Panics
@@ -157,7 +156,7 @@ pub trait WordsList<const WORD_LEN: usize>: WordsListCore<WORD_LEN> {
     /// using [`rand::thread_rng`].
     ///
     /// If many random words are needed, it might be more efficient
-    /// to use [`random_with`](WordsList::random_with) and provide a single [`Rng`](rand::Rng).
+    /// to use [`random_with`](#method.random_with) and provide a cached [`Rng`](rand::Rng).
     ///
     /// # Panics
     /// Panics if the list is empty.
