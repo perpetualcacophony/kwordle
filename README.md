@@ -1,4 +1,4 @@
-![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/perpetualcacophony/slimebot/ci.yml)
+![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/perpetualcacophony/kwordle/ci.yml)
 
 # kwordle
 A generalized wordle library for Rust.
