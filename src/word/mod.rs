@@ -1,6 +1,9 @@
 use std::{fmt::Display, str::FromStr};
 
-use crate::{letter::Letter, letter_state::LetterState, letters::Letters};
+use crate::{
+    letter_state::LetterState,
+    letters::{Letters, ParseLettersError},
+};
 
 mod letters_map;
 pub use letters_map::LettersMap;
@@ -20,6 +23,12 @@ pub struct Word<const LEN: usize> {
 impl<const LEN: usize> Word<LEN> {
     pub(crate) fn new_unchecked(letters: Letters<LEN>) -> Self {
         Self { letters }
+    }
+
+    #[allow(dead_code)]
+    pub(crate) fn from_str_unchecked(s: &str) -> Result<Self, ParseLettersError> {
+        let letters = Letters::from_str(s)?;
+        Ok(Self::new_unchecked(letters))
     }
 
     /// Constructs a new `Word` from a [`Letters`] object if it exists in the given [`WordsList`].
@@ -110,5 +119,30 @@ impl<const LEN: usize> Display for Word<LEN> {
 impl<const LEN: usize> PartialEq<str> for Word<LEN> {
     fn eq(&self, other: &str) -> bool {
         self.to_string().as_str().eq(other)
+    }
+}
+
+impl<'s, const LEN: usize> PartialEq<&'s str> for Word<LEN> {
+    fn eq(&self, other: &&'s str) -> bool {
+        self.eq(*other)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::Word;
+
+    fn amber() -> Word<5> {
+        Word::from_str_unchecked("amber").expect("'amber' should be a valid 5-letter Word")
+    }
+
+    #[test]
+    fn to_string() {
+        assert_eq!(amber().to_string().as_str(), "amber");
+    }
+
+    #[test]
+    fn partial_eq_str() {
+        assert_eq!(amber(), "amber")
     }
 }
