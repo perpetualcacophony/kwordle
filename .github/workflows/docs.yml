@@ -34,11 +34,14 @@ jobs:
         run: cargo doc --no-deps
 
       - name: Add redirect
-        run: echo '<meta http-equiv="refresh" content="0;url=kwordle/index.html">' > target/doc/index.html
+        run: echo '<meta http-equiv="refresh" content="0;url=doc/index.html">' > target/doc/index.html
       
+      - name: Rename docs folder
+        run: mv target/doc/kwordle target/doc/docs
+
       - name: Remove lock file
         run: rm target/doc/.lock
-        
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
