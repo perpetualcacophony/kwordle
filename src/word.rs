@@ -20,6 +20,10 @@ impl<const LEN: usize> Word<LEN> {
         Self { letters }
     }
 
+    /// Constructs a new `Word` from a [`Letters`] object if it exists in the given [`WordsList`].
+    ///
+    /// # Errors
+    /// Returns [`ParseWordError::NotInList`] if the word cannot be found in the list.
     pub fn from_letters(
         list: &impl crate::WordsList<LEN>,
         letters: Letters<LEN>,
@@ -35,15 +39,23 @@ impl<const LEN: usize> Word<LEN> {
         }
     }
 
+    /// Constructs a new `Word` by parsing a string slice.
+    ///
+    /// # Errors
+    /// Returns a [`ParseLettersError`] if parsing the string fails,
+    /// or [`ParseWordError::NotInList`] if the word cannot be found in the list.
     pub fn from_str(list: &impl crate::WordsList<LEN>, s: &str) -> Result<Self, ParseWordError> {
         let letters = Letters::from_str(s)?;
         Self::from_letters(list, letters)
     }
 
+    /// Constructs a new [`LettersMap`] from this word's letters.
     pub fn letters_map(self) -> LettersMap {
         LettersMap::from_iter(self.letters)
     }
 
+    /// Checks the letters of another `Word` against this one,
+    /// returning a [`Guess`](super::Guess) with the status of each guessed letter.
     pub fn guess_word(self, word: Self) -> super::guess::Guess<LEN> {
         let mut guess = crate::guess::Guess::none_present(word.letters);
         let mut map = self.letters_map();
@@ -65,6 +77,11 @@ impl<const LEN: usize> Word<LEN> {
         guess
     }
 
+    /// Parses a string slice into a `Word` with the given [`WordsList`],
+    /// and then guesses that `Word` against this one.
+    ///
+    /// # Errors
+    /// Returns a [`ParseWordError`] if parsing the string into a `Word` fails.
     pub fn guess_str(
         self,
         list: &impl crate::WordsList<LEN>,
