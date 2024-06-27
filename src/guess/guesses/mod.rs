@@ -2,7 +2,7 @@ use crate::guess::Guess;
 
 pub struct Guesses<const N: usize> {
     max: Option<usize>,
-    vec: Vec<Guess<N>>
+    vec: Vec<Guess<N>>,
 }
 
 pub type Classic = Guesses<5>;
@@ -11,7 +11,7 @@ impl<const N: usize> Guesses<N> {
     pub fn new(max: impl Into<Option<usize>>) -> Self {
         Self {
             max: max.into(),
-            vec: Vec::new()
+            vec: Vec::new(),
         }
     }
 

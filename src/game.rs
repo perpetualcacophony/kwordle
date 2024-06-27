@@ -1,4 +1,4 @@
-use crate::{guesses::Guesses, word::Word};
+use crate::{Guesses, Word};
 
 pub struct Game<const WORD_LEN: usize> {
     answer: Word<WORD_LEN>,

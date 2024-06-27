@@ -2,7 +2,7 @@ use std::{fmt::Display, str::FromStr};
 
 use crate::{
     letter::letters::{Letters, ParseLettersError},
-    letter_state::LetterState,
+    LetterState,
 };
 
 mod letters_map;

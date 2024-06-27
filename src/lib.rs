@@ -4,20 +4,16 @@ pub mod letter;
 pub use letter::Letter;
 pub use letter::Letters;
 
-pub mod letter_state;
-
-#[doc(inline)]
-pub use letter_state::LetterState;
-
 pub mod guess;
 
 #[doc(inline)]
 pub use guess::Guess;
 
-pub mod guesses;
+#[doc(inline)]
+pub use guess::Guesses;
 
 #[doc(inline)]
-pub use guesses::Guesses;
+pub use guess::LetterState;
 
 pub mod word;
 

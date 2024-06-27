@@ -3,7 +3,12 @@ use std::ops::{Index, IndexMut};
 use crate::Letters;
 
 use super::letter::Letter;
-use super::letter_state::LetterState;
+
+pub mod guesses;
+pub use guesses::Guesses;
+
+mod letter_state;
+pub use letter_state::LetterState;
 
 #[derive(Copy, Clone, Debug)]
 pub struct Guess<const N: usize> {
@@ -53,7 +58,7 @@ impl<const N: usize> IntoIterator for Guess<N> {
 
 #[cfg(test)]
 mod tests {
-    use crate::letter_state::LetterState;
+    use crate::LetterState;
 
     use super::Guess;
 
