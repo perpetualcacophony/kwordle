@@ -1,10 +1,12 @@
-use std::{collections::HashMap, fmt::Display, str::FromStr};
+use std::{fmt::Display, str::FromStr};
 
-use crate::{
-    letter::Letter,
-    letter_state::LetterState,
-    letters::{Letters, ParseLettersError},
-};
+use crate::{letter::Letter, letter_state::LetterState, letters::Letters};
+
+mod letters_map;
+pub use letters_map::LettersMap;
+
+mod error;
+pub use error::ParseWordError;
 
 #[allow(unused_imports)]
 use crate::WordsList;
@@ -27,13 +29,13 @@ impl<const LEN: usize> Word<LEN> {
     pub fn from_letters(
         list: &impl crate::WordsList<LEN>,
         letters: Letters<LEN>,
-    ) -> Result<Self, ParseWordError> {
+    ) -> Result<Self, error::ParseWordError> {
         let unchecked = Self::new_unchecked(letters);
 
         if list.contains(unchecked) {
             Ok(unchecked)
         } else {
-            Err(ParseWordError::NotInList {
+            Err(error::ParseWordError::NotInList {
                 letters: unchecked.letters.into(),
             })
         }
@@ -44,14 +46,17 @@ impl<const LEN: usize> Word<LEN> {
     /// # Errors
     /// Returns a [`ParseLettersError`] if parsing the string fails,
     /// or [`ParseWordError::NotInList`] if the word cannot be found in the list.
-    pub fn from_str(list: &impl crate::WordsList<LEN>, s: &str) -> Result<Self, ParseWordError> {
+    pub fn from_str(
+        list: &impl crate::WordsList<LEN>,
+        s: &str,
+    ) -> Result<Self, error::ParseWordError> {
         let letters = Letters::from_str(s)?;
         Self::from_letters(list, letters)
     }
 
     /// Constructs a new [`LettersMap`] from this word's letters.
-    pub fn letters_map(self) -> LettersMap {
-        LettersMap::from_iter(self.letters)
+    pub fn letters_map(self) -> letters_map::LettersMap {
+        letters_map::LettersMap::from_iter(self.letters)
     }
 
     /// Checks the letters of another `Word` against this one,
@@ -86,20 +91,9 @@ impl<const LEN: usize> Word<LEN> {
         self,
         list: &impl crate::WordsList<LEN>,
         s: &str,
-    ) -> Result<super::Guess<LEN>, ParseWordError> {
+    ) -> Result<super::Guess<LEN>, error::ParseWordError> {
         let word = Self::from_str(list, s)?;
         Ok(self.guess_word(word))
-    }
-}
-
-pub enum ParseWordError {
-    ParseLetters(ParseLettersError),
-    NotInList { letters: Vec<Letter> },
-}
-
-impl From<ParseLettersError> for ParseWordError {
-    fn from(value: ParseLettersError) -> Self {
-        Self::ParseLetters(value)
     }
 }
 
@@ -116,72 +110,5 @@ impl<const LEN: usize> Display for Word<LEN> {
 impl<const LEN: usize> PartialEq<str> for Word<LEN> {
     fn eq(&self, other: &str) -> bool {
         self.to_string().as_str().eq(other)
-    }
-}
-
-#[derive(Default, Debug, Clone)]
-pub struct LettersMap {
-    hash_map: HashMap<Letter, usize>,
-}
-
-impl LettersMap {
-    pub fn new() -> Self {
-        HashMap::new().into()
-    }
-
-    pub fn count_letter(&self, letter: Letter) -> usize {
-        self.hash_map.get(&letter).copied().unwrap_or_default()
-    }
-
-    pub fn contains_letter(&self, letter: Letter) -> bool {
-        self.hash_map.contains_key(&letter)
-    }
-
-    pub fn insert(&mut self, letter: Letter) {
-        self.hash_map.insert(letter, 1);
-    }
-
-    pub fn increment(&mut self, letter: Letter) {
-        if let Some(count) = self.hash_map.get_mut(&letter) {
-            *count += 1;
-        } else {
-            self.insert(letter)
-        }
-    }
-
-    pub fn decrement(&mut self, letter: Letter) -> Option<usize> {
-        if self.contains_letter(letter) {
-            if self.count_letter(letter) == 1 {
-                self.hash_map.remove(&letter);
-                Some(0)
-            } else {
-                let count = self
-                    .hash_map
-                    .get_mut(&letter)
-                    .expect("already checked that the map contains this letter");
-                *count -= 1; // will never be 0
-                Some(*count)
-            }
-        } else {
-            None
-        }
-    }
-}
-
-impl From<HashMap<Letter, usize>> for LettersMap {
-    fn from(value: HashMap<Letter, usize>) -> Self {
-        Self { hash_map: value }
-    }
-}
-
-impl FromIterator<Letter> for LettersMap {
-    fn from_iter<T: IntoIterator<Item = Letter>>(iter: T) -> Self {
-        let mut map = Self::new();
-
-        for letter in iter {
-            map.increment(letter);
-        }
-
-        map
     }
 }
