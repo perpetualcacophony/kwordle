@@ -15,5 +15,3 @@ impl<const WORD_LEN: usize> super::core::WordsListCore<WORD_LEN> for HashSetWord
         }
     }
 }
-
-impl<const WORD_LEN: usize> super::WordsList<WORD_LEN> for HashSetWordsList<WORD_LEN> {}
