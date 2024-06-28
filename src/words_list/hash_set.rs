@@ -17,7 +17,9 @@ impl<const N: usize> super::WordsListCore<N> for HashSetWordsList<N> {
 
     #[cfg(feature = "rand")]
     fn try_random<R: rand::Rng + ?Sized>(&self, rng: &mut R) -> Option<Word<N>> {
-        self.set.try_random(rng)
+        use rand::seq::IteratorRandom;
+
+        self.set.iter().choose(rng).copied()
     }
 
     fn collection_contains(&self, word: Word<N>) -> bool {

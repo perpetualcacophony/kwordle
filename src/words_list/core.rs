@@ -57,22 +57,3 @@ pub trait WordsListCore<const WORD_LEN: usize> {
     /// Checks if this collection contains a given [`Word`].
     fn collection_contains(&self, word: Word<WORD_LEN>) -> bool;
 }
-
-impl<const N: usize> WordsListCore<N> for HashSet<Word<N>> {
-    fn is_empty(&self) -> bool {
-        self.is_empty()
-    }
-
-    #[cfg(feature = "rand")]
-    fn try_random<R: rand::Rng + ?Sized>(&self, rng: &mut R) -> Option<Word<N>> {
-        self.choose_random(rng)
-    }
-
-    fn collection_contains(&self, word: Word<N>) -> bool {
-        self.contains(&word)
-    }
-
-    fn from_words<It: IntoIterator<Item = Word<N>>>(words: It) -> Self {
-        words.into_iter().collect()
-    }
-}

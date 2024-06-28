@@ -185,16 +185,16 @@ pub struct GuessesAndAnswersList<G, A, const N: usize> {
 }
 
 impl<const N: usize, G: WordsList<N>, A: WordsList<N>> GuessesAndAnswersList<G, A, N> {
-    fn new(guesses: G, answers: A) -> Self {
+    pub fn new(guesses: G, answers: A) -> Self {
         Self { guesses, answers }
     }
 
-    fn valid_guess(&self, word: Word<N>) -> bool {
+    pub fn valid_guess(&self, word: Word<N>) -> bool {
         self.guesses.contains(word) || self.answers.contains(word)
     }
 
     #[cfg(feature = "rand")]
-    fn random_answer(&self) -> Word<N> {
+    pub fn random_answer(&self) -> Word<N> {
         self.answers.random()
     }
 }
@@ -203,4 +203,33 @@ impl<const N: usize, L: WordsList<N> + Clone> GuessesAndAnswersList<L, L, N> {
     fn from_single(list: L) -> Self {
         Self::new(list.clone(), list)
     }
+}
+
+impl<D, L, const N: usize> WordsListCore<N> for D
+where
+    D: std::ops::Deref<Target = L>,
+    L: WordsListCore<N> + Into<D>,
+{
+    fn try_random<R: rand::Rng + ?Sized>(&self, rng: &mut R) -> Option<Word<N>> {
+        self.deref().try_random(rng)
+    }
+
+    fn is_empty(&self) -> bool {
+        self.deref().is_empty()
+    }
+
+    fn from_words<It: IntoIterator<Item = Word<N>>>(words: It) -> Self {
+        <Self as std::ops::Deref>::Target::from_words(words).into()
+    }
+
+    fn collection_contains(&self, word: Word<N>) -> bool {
+        self.deref().collection_contains(word)
+    }
+}
+
+impl<D, L, const N: usize> WordsList<N> for D
+where
+    D: std::ops::Deref<Target = L> + WordsListCore<N>,
+    L: WordsList<N>,
+{
 }
