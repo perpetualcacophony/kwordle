@@ -11,6 +11,8 @@ pub use letters_map::LettersMap;
 mod error;
 pub use error::ParseWordError;
 
+pub mod list;
+
 #[allow(unused_imports)]
 use crate::WordsList;
 
