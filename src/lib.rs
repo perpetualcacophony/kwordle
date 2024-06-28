@@ -27,3 +27,5 @@ pub mod words_list;
 
 #[doc(inline)]
 pub use words_list::WordsList;
+
+pub mod classic;
