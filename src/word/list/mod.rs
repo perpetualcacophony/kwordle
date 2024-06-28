@@ -1,7 +1,10 @@
 mod collection;
 mod core;
 mod error;
+
 pub mod structs;
+pub use structs::HashSetWordsList;
+
 use std::str::FromStr;
 
 pub use error::ParseWordsListError;

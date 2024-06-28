@@ -27,6 +27,7 @@ where
         self.into_iter().choose(rng).copied()
     }
 
+    #[allow(dead_code)]
     #[cfg(feature = "rand")]
     fn slice_random<R>(&self, rng: &mut R) -> Option<crate::Word<WORD_LEN>>
     where
