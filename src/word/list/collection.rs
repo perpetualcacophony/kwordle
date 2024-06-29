@@ -40,6 +40,8 @@ where
     }
 
     fn contains(&self, word: &crate::Word<WORD_LEN>) -> bool;
+
+    fn union(&self, other: &Self) -> Self;
 }
 
 impl<const N: usize> crate::Sealed for std::collections::HashSet<crate::Word<N>> {}
@@ -61,5 +63,9 @@ impl<const WORD_LEN: usize> WordsListCollection<WORD_LEN>
 
     fn contains(&self, word: &crate::Word<WORD_LEN>) -> bool {
         self.contains(word)
+    }
+
+    fn union(&self, other: &Self) -> Self {
+        self.union(other).copied().collect()
     }
 }

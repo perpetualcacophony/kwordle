@@ -58,6 +58,11 @@ where
     pub fn contains(&self, word: Word<N>) -> bool {
         self.collection.contains(&word)
     }
+
+    pub fn union(&self, other: &Self) -> Self {
+        Self::from_collection(self.collection.union(&other.collection))
+            .expect("should not be empty")
+    }
 }
 
 pub type HashSetCore<const N: usize> = WordsListCore<std::collections::HashSet<Word<N>>, N>;
