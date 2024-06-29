@@ -26,6 +26,9 @@ pub use game::Game;
 pub mod words_list;
 
 #[doc(inline)]
-pub use words_list::WordsList;
+pub use word::WordsList;
 
 pub mod classic;
+
+mod sealed;
+use sealed::Sealed;

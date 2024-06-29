@@ -1,31 +1,31 @@
 mod collection;
-mod core;
+pub mod core;
+pub use core::WordsListCore;
+
 mod error;
 
 pub mod structs;
 pub use structs::HashSetWordsList;
 
-use std::str::FromStr;
-
 pub use error::ParseWordsListError;
 
 use collection::WordsListCollection;
 
-use crate::{Letters, Word};
+pub use crate::Word;
 
-#[allow(private_bounds)] // sealed trait
-pub trait WordsList<const WORD_LEN: usize>
-where
-    Self: core::WordsListCore<WORD_LEN>,
-{
+pub trait WordsList<const WORD_LEN: usize> {
+    type Collection: WordsListCollection<WORD_LEN>;
+
+    fn core(&self) -> &WordsListCore<Self::Collection, WORD_LEN>;
+
+    fn from_core(core: WordsListCore<Self::Collection, WORD_LEN>) -> Self;
+
     #[cfg(feature = "rand")]
     fn random_with<R>(&self, rng: &mut R) -> Word<WORD_LEN>
     where
         R: rand::Rng,
     {
-        self.collection()
-            .random(rng)
-            .expect("type implementing WordsList must never be empty")
+        self.core().random_with(rng)
     }
 
     #[cfg(feature = "rand_full")]
@@ -38,32 +38,34 @@ where
         Self: Sized,
         W: IntoIterator<Item = Word<WORD_LEN>>,
     {
-        let collection = Self::Collection::from_words(words);
-
-        if collection.is_empty() {
-            return Err(ParseWordsListError::EmptyInput);
-        }
-
-        Ok(Self::from_collection(collection))
+        Ok(Self::from_core(
+            <WordsListCore<Self::Collection, WORD_LEN>>::from_words(words)?,
+        ))
     }
 
     fn from_str(s: &str) -> Result<Self, ParseWordsListError>
     where
         Self: Sized,
     {
-        if s.is_empty() {
-            return Err(ParseWordsListError::EmptyInput);
-        }
+        Ok(Self::from_core(
+            <WordsListCore<Self::Collection, WORD_LEN>>::from_str(s)?,
+        ))
+    }
 
-        let words = s
-            .lines()
-            .map(Letters::from_str)
-            .collect::<Result<Vec<Letters<WORD_LEN>>, _>>()?
-            .into_iter()
-            .map(Word::new_unchecked);
+    fn contains(&self, word: Word<WORD_LEN>) -> bool {
+        self.core().contains(word)
+    }
 
-        Self::from_words(words)
+    #[cfg(feature = "rand")]
+    fn random_answer_with<R>(&self, rng: &mut R) -> Option<Word<WORD_LEN>>
+    where
+        R: rand::Rng,
+    {
+        Some(self.random_with(rng))
+    }
+
+    #[cfg(feature = "rand_full")]
+    fn random_answer(&self) -> Option<Word<WORD_LEN>> {
+        self.random_answer_with(&mut rand::thread_rng())
     }
 }
-
-impl<T, const WORD_LEN: usize> WordsList<WORD_LEN> for T where T: core::WordsListCore<WORD_LEN> {}

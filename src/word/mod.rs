@@ -13,11 +13,14 @@ pub use error::ParseWordError;
 
 pub mod list;
 
+mod validity;
+pub use validity::WordValidity;
+
 #[allow(unused_imports)]
-use crate::WordsList;
+pub use list::WordsList;
 
 /// Represents a single valid word from a specific [`WordsList`].
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Word<const LEN: usize> {
     letters: Letters<LEN>,
 }

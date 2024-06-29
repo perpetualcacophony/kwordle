@@ -1,4 +1,4 @@
-use std::{collections::HashSet, str::FromStr};
+use std::str::FromStr;
 
 #[cfg(feature = "rand")]
 use rand::seq::IteratorRandom;

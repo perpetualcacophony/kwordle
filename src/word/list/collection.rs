@@ -1,6 +1,6 @@
-pub(crate) trait WordsListCollection<const WORD_LEN: usize>
+pub trait WordsListCollection<const WORD_LEN: usize>
 where
-    Self: FromIterator<crate::Word<WORD_LEN>>,
+    Self: FromIterator<crate::Word<WORD_LEN>> + crate::Sealed,
 {
     fn is_empty(&self) -> bool;
 
@@ -12,33 +12,37 @@ where
     }
 
     #[cfg(feature = "rand")]
-    fn random<R>(&self, rng: &mut R) -> Option<crate::Word<WORD_LEN>>
+    fn random<R>(&self, rng: &mut R) -> Option<&crate::Word<WORD_LEN>>
     where
         R: rand::Rng;
 
     #[cfg(feature = "rand")]
-    fn iterator_random<R>(&self, rng: &mut R) -> Option<crate::Word<WORD_LEN>>
+    fn iterator_random<R>(&self, rng: &mut R) -> Option<&crate::Word<WORD_LEN>>
     where
         for<'a> &'a Self: IntoIterator<Item = &'a crate::Word<WORD_LEN>>,
         R: rand::Rng,
     {
         use rand::seq::IteratorRandom;
 
-        self.into_iter().choose(rng).copied()
+        self.into_iter().choose(rng)
     }
 
     #[allow(dead_code)]
     #[cfg(feature = "rand")]
-    fn slice_random<R>(&self, rng: &mut R) -> Option<crate::Word<WORD_LEN>>
+    fn slice_random<R>(&self, rng: &mut R) -> Option<&crate::Word<WORD_LEN>>
     where
         Self: AsRef<[crate::Word<WORD_LEN>]>,
         R: rand::Rng,
     {
         use rand::seq::SliceRandom;
 
-        self.as_ref().choose(rng).copied()
+        self.as_ref().choose(rng)
     }
+
+    fn contains(&self, word: &crate::Word<WORD_LEN>) -> bool;
 }
+
+impl<const N: usize> crate::Sealed for std::collections::HashSet<crate::Word<N>> {}
 
 impl<const WORD_LEN: usize> WordsListCollection<WORD_LEN>
     for std::collections::HashSet<crate::Word<WORD_LEN>>
@@ -48,10 +52,14 @@ impl<const WORD_LEN: usize> WordsListCollection<WORD_LEN>
     }
 
     #[cfg(feature = "rand")]
-    fn random<R>(&self, rng: &mut R) -> Option<crate::Word<WORD_LEN>>
+    fn random<R>(&self, rng: &mut R) -> Option<&crate::Word<WORD_LEN>>
     where
         R: rand::Rng,
     {
         self.iterator_random(rng)
+    }
+
+    fn contains(&self, word: &crate::Word<WORD_LEN>) -> bool {
+        self.contains(word)
     }
 }
