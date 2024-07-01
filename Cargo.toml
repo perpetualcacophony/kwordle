@@ -7,7 +7,7 @@ readme = "README.md"
 license-file = "LICENSE.md"
 
 [dependencies]
-rand = { version = "0.8.5", optional = true }
+rand = { version = "0.8.5", optional = true, default-features = false }
 
 [dev-dependencies]
 assert-impl = "0.1.3"
