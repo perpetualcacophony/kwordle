@@ -89,7 +89,8 @@ impl<const LEN: usize> Word<LEN> {
         }
 
         for guess in guess.iter_mut() {
-            if map.contains_letter(guess.0) {
+            // i don't know why i need to check for correctness again? whatev
+            if map.contains_letter(guess.0) && guess.1 != LetterState::Correct {
                 guess.1 = LetterState::WrongPlace;
                 map.decrement(guess.0);
             }
