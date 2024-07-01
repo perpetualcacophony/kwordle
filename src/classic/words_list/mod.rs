@@ -1,73 +1,51 @@
 use std::{collections::HashSet, ops::Deref};
 
-use crate::{Word, WordsList as _};
+use crate::{word::list::{Collection, HashSetWordsList}, Word, WordsList as _};
 
 const ALLOWED: &str = include_str!("allowed.txt");
 const ANSWERS: &str = include_str!("answers.txt");
 
-pub struct WordsList {
-    allowed: Allowed,
-    answers: Answers,
+pub struct WordsList<'w> {
+    allowed: Collection<5, HashSet<Word<5>>>,
+    answers: Collection<5, HashSet<&'w Word<5>>>,
 }
 
-impl WordsList {
+impl<'w> WordsList<'w> {
     pub fn new() -> Self {
-        Self {
-            allowed: Allowed::new(),
-            answers: Answers::new(),
+        let mut allowed = Collection::from_str(ALLOWED).unwrap();
+        let answers_owned = HashSetWordsList::from_str(ANSWERS).unwrap();
+        let mut answers_set = HashSet::new();
+
+        for word in answers_owned {
+            let answer_ref = allowed.push(word.clone());
+            answers_set.insert(answer_ref);
         }
+
+        let answers = Collection::try_new(answers_set).unwrap();
+
+        Self { allowed, answers }
     }
 }
 
-impl crate::WordsList<5> for WordsList {
+impl crate::WordsList<5> for WordsList<'_> {
+    type Collection = HashSet<Word<5>>;
+
+    fn collection(&self) -> &crate::word::list::Collection<5, Self::Collection> {
+        &self.allowed
+    }
+
+    fn collection_mut(&mut self) -> &mut Collection<5, Self::Collection> {
+        &mut self.allowed
+    }
+
+    fn from_collection(collection: crate::word::list::Collection<5, Self::Collection>) -> Self {
+        
+    }
+
     #[cfg(feature = "rand")]
     fn random_answer_with<R>(&self, rng: &mut R) -> Option<Word<5>>
         where
             R: rand::Rng, {
         self.
-    }
-}
-
-struct Allowed {
-    core: crate::word::list::core::HashSetCore<5>,
-}
-
-impl Allowed {
-    fn new() -> Self {
-        Self::from_str(ALLOWED).expect("allowed.txt should be valid 5-letter words")
-    }
-}
-
-impl crate::WordsList<5> for Allowed {
-    type Collection = HashSet<Word<5>>;
-
-    fn core(&self) -> &crate::word::list::WordsListCore<Self::Collection, 5> {
-        &self.core
-    }
-
-    fn from_core(core: crate::word::list::core::WordsListCore<Self::Collection, 5>) -> Self {
-        Self { core }
-    }
-}
-
-struct Answers {
-    core: crate::word::list::core::HashSetCore<5>,
-}
-
-impl Answers {
-    fn new() -> Self {
-        Self::from_str(ANSWERS).expect("answers.txt should be valid 5-letter words")
-    }
-}
-
-impl crate::WordsList<5> for Answers {
-    type Collection = HashSet<Word<5>>;
-
-    fn core(&self) -> &crate::word::list::WordsListCore<Self::Collection, 5> {
-        &self.core
-    }
-
-    fn from_core(core: crate::word::list::core::WordsListCore<Self::Collection, 5>) -> Self {
-        Self { core }
     }
 }

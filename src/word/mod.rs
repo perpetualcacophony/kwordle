@@ -133,6 +133,18 @@ impl<'s, const LEN: usize> PartialEq<&'s str> for Word<LEN> {
     }
 }
 
+impl<'w, const LEN: usize> PartialEq<&'w Self> for Word<LEN> {
+    fn eq(&self, other: &&'w Self) -> bool {
+        self.eq(*other)
+    }
+}
+
+impl<'w, const LEN: usize> PartialEq<Word<LEN>> for &'w Word<LEN> {
+    fn eq(&self, other: &Word<LEN>) -> bool {
+        (*self).eq(other)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::Word;

@@ -8,9 +8,9 @@ pub struct WordsListCore<C, const N: usize> {
     collection: C,
 }
 
-impl<C, const N: usize> WordsListCore<C, N>
+impl<'ans, C, const N: usize> WordsListCore<C, N>
 where
-    C: super::WordsListCollection<N>,
+    C: super::WordsListCollection<'ans, N>,
 {
     fn from_collection(collection: C) -> Result<Self, ParseWordsListError> {
         if collection.is_empty() {
@@ -62,6 +62,12 @@ where
     pub fn union(&self, other: &Self) -> Self {
         Self::from_collection(self.collection.union(&other.collection))
             .expect("should not be empty")
+    }
+
+    pub fn answers(&'ans self) -> WordsListCore<C::Answers, N> {
+        WordsListCore {
+            collection: self.collection.answers(),
+        }
     }
 }
 
