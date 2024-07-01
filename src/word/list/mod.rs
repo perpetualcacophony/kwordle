@@ -71,4 +71,5 @@ pub trait WordsList<const WORD_LEN: usize> {
     }
 }
 
+pub mod answers;
 pub mod guessable;

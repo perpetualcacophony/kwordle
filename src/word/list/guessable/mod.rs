@@ -49,3 +49,9 @@ impl<const N: usize> Guessable<N> {
         self.contains(Word::new_unchecked(letters))
     }
 }
+
+impl<const N: usize> Extend<Word<N>> for Guessable<N> {
+    fn extend<T: IntoIterator<Item = Word<N>>>(&mut self, iter: T) {
+        self.set.extend(iter)
+    }
+}
