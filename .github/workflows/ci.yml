@@ -22,6 +22,9 @@ jobs:
     - name: Install rust
       uses: dtolnay/rust-toolchain@nightly
 
+    - name: Install cargo-hack
+      uses: taiki-e/install-action@cargo-hack
+
     - name: Cache rust
       uses: Swatinem/rust-cache@v2
 
@@ -30,3 +33,6 @@ jobs:
 
     - name: Run tests
       run: cargo test
+
+    - name: Check features
+      run: cargo hack check --each-feature --no-dev-deps
