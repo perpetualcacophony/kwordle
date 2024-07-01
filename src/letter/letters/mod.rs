@@ -104,3 +104,11 @@ impl<const N: usize> FromStr for Letters<N> {
         letters.try_into()
     }
 }
+
+impl<const N: usize, L: std::fmt::Debug> FromIterator<L> for Letters<N, L> {
+    fn from_iter<T: IntoIterator<Item = L>>(iter: T) -> Self {
+        let vec: Vec<L> = Vec::from_iter(iter);
+        let array: [L; N] = <[L; N]>::try_from(vec).unwrap();
+        Self { array }
+    }
+}

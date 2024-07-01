@@ -58,38 +58,67 @@ impl<const N: usize> IntoIterator for Guess<N> {
 
 #[cfg(test)]
 mod tests {
-    use crate::LetterState;
+    use super::{Guess, LetterState};
 
-    //use super::Guess;
+    mod fmt {
+        pub trait Test {
+            fn fmt(&self, f: &mut impl std::fmt::Write) -> std::fmt::Result;
 
-    trait TestFormat: Sized {
-        fn fmt_test(&self, s: &mut String);
+            fn to_string(&self) -> String {
+                let mut s = String::new();
+                self.fmt(&mut s).unwrap();
+                s
+            }
 
-        fn to_test_fmt(&self) -> String {
-            let mut s = String::new();
-            self.fmt_test(&mut s);
-            s
+            fn from_str(s: &str) -> Option<Self>
+            where
+                Self: Sized;
         }
-
-        fn from_test_fmt(s: &str) -> Option<Self>;
     }
 
-    impl TestFormat for LetterState {
-        fn fmt_test(&self, s: &mut String) {
-            s.push_str(match self {
-                Self::Correct => "O",
-                Self::WrongPlace => "o",
-                Self::NotPresent => ".",
+    impl fmt::Test for LetterState {
+        fn fmt(&self, f: &mut impl std::fmt::Write) -> std::fmt::Result {
+            f.write_char(match self {
+                Self::Correct => 'O',
+                Self::WrongPlace => 'o',
+                Self::NotPresent => '.',
             })
         }
 
-        fn from_test_fmt(s: &str) -> Option<Self> {
+        fn from_str(s: &str) -> Option<Self>
+        where
+            Self: Sized,
+        {
             match s {
                 "O" => Some(Self::Correct),
                 "o" => Some(Self::WrongPlace),
                 "." => Some(Self::NotPresent),
                 _ => None,
             }
+        }
+    }
+
+    impl<const N: usize> fmt::Test for Guess<N> {
+        fn fmt(&self, f: &mut impl std::fmt::Write) -> std::fmt::Result {
+            for (_, state) in self.letters {
+                fmt::Test::fmt(&state, f)?;
+            }
+
+            Ok(())
+        }
+
+        fn from_str(s: &str) -> Option<Self>
+        where
+            Self: Sized,
+        {
+            let letters_states = s
+                .chars()
+                .filter_map(|ch| LetterState::from_str(&ch.to_string()))
+                .map(|l| (crate::Letter::A, l));
+
+            Some(Self {
+                letters: crate::Letters::from_iter(letters_states),
+            })
         }
     }
 }
