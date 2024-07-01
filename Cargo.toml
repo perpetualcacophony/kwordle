@@ -1,6 +1,6 @@
 [package]
 name = "kwordle"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
 repository = "https://github.com/perpetualcacophony/kwordle"
 readme = "README.md"
@@ -15,7 +15,7 @@ paste = "1.0.15"
 pretty_assertions = "1.4.0"
 
 [features]
-default = ["rand_full", "classic_words"]
+default = ["rand_full"]
 rand = ["dep:rand"]
 rand_full = ["rand", "rand/std", "rand/std_rng"]
 classic_words = []
