@@ -1,5 +1,7 @@
 use crate::{word::words::Words, Word};
 
+use super::guessable::Guessable;
+
 #[derive(Debug, Clone)]
 pub struct Answers<const N: usize> {
     base: Words<N>,
@@ -24,6 +26,18 @@ impl<const N: usize> Answers<N> {
     {
         let base = iter.into_iter().collect();
         Self::try_new(base)
+    }
+
+    fn from_iter_unchecked<I>(iter: I) -> Self
+    where
+        I: IntoIterator<Item = Word<N>>,
+    {
+        let base = iter.into_iter().collect();
+        Self::new_unchecked(base)
+    }
+
+    pub fn from_guessable(guessable: &Guessable<N>) -> Self {
+        Self::from_iter_unchecked(guessable.into_iter().copied())
     }
 }
 

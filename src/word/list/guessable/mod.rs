@@ -48,10 +48,23 @@ impl<const N: usize> Guessable<N> {
     pub fn contains_letters(&self, letters: Letters<N>) -> bool {
         self.contains(Word::new_unchecked(letters))
     }
+
+    pub fn iter(&self) -> std::collections::hash_set::Iter<'_, Word<N>> {
+        self.into_iter()
+    }
 }
 
 impl<const N: usize> Extend<Word<N>> for Guessable<N> {
     fn extend<T: IntoIterator<Item = Word<N>>>(&mut self, iter: T) {
         self.set.extend(iter)
+    }
+}
+
+impl<'a, const N: usize> IntoIterator for &'a Guessable<N> {
+    type Item = &'a Word<N>;
+    type IntoIter = std::collections::hash_set::Iter<'a, Word<N>>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.set.iter()
     }
 }
