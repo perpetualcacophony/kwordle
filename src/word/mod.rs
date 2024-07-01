@@ -13,11 +13,16 @@ pub use error::ParseWordError;
 
 pub mod list;
 
+mod validity;
+pub use validity::WordValidity;
+
+mod words;
+
 #[allow(unused_imports)]
-use crate::WordsList;
+pub use list::WordsList;
 
 /// Represents a single valid word from a specific [`WordsList`].
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Word<const LEN: usize> {
     letters: Letters<LEN>,
 }
@@ -38,12 +43,12 @@ impl<const LEN: usize> Word<LEN> {
     /// # Errors
     /// Returns [`ParseWordError::NotInList`] if the word cannot be found in the list.
     pub fn from_letters(
-        list: &impl crate::WordsList<LEN>,
+        list: &WordsList<LEN>,
         letters: Letters<LEN>,
     ) -> Result<Self, error::ParseWordError> {
         let unchecked = Self::new_unchecked(letters);
 
-        if list.contains(unchecked) {
+        if list.guessable.contains(unchecked) {
             Ok(unchecked)
         } else {
             Err(error::ParseWordError::NotInList {
@@ -57,10 +62,7 @@ impl<const LEN: usize> Word<LEN> {
     /// # Errors
     /// Returns a [`ParseLettersError`] if parsing the string fails,
     /// or [`ParseWordError::NotInList`] if the word cannot be found in the list.
-    pub fn from_str(
-        list: &impl crate::WordsList<LEN>,
-        s: &str,
-    ) -> Result<Self, error::ParseWordError> {
+    pub fn from_str(list: &WordsList<LEN>, s: &str) -> Result<Self, error::ParseWordError> {
         let letters = Letters::from_str(s)?;
         Self::from_letters(list, letters)
     }
@@ -100,7 +102,7 @@ impl<const LEN: usize> Word<LEN> {
     /// Returns a [`ParseWordError`] if parsing the string into a `Word` fails.
     pub fn guess_str(
         self,
-        list: &impl crate::WordsList<LEN>,
+        list: &WordsList<LEN>,
         s: &str,
     ) -> Result<super::Guess<LEN>, error::ParseWordError> {
         let word = Self::from_str(list, s)?;
@@ -127,6 +129,24 @@ impl<const LEN: usize> PartialEq<str> for Word<LEN> {
 impl<'s, const LEN: usize> PartialEq<&'s str> for Word<LEN> {
     fn eq(&self, other: &&'s str) -> bool {
         self.eq(*other)
+    }
+}
+
+impl<'w, const LEN: usize> PartialEq<&'w Self> for Word<LEN> {
+    fn eq(&self, other: &&'w Self) -> bool {
+        self.eq(*other)
+    }
+}
+
+impl<'w, const LEN: usize> PartialEq<Word<LEN>> for &'w Word<LEN> {
+    fn eq(&self, other: &Word<LEN>) -> bool {
+        (*self).eq(other)
+    }
+}
+
+impl<const LEN: usize> PartialEq<Letters<LEN>> for Word<LEN> {
+    fn eq(&self, other: &Letters<LEN>) -> bool {
+        self.letters.eq(other)
     }
 }
 

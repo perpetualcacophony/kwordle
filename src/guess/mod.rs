@@ -60,7 +60,7 @@ impl<const N: usize> IntoIterator for Guess<N> {
 mod tests {
     use crate::LetterState;
 
-    use super::Guess;
+    //use super::Guess;
 
     trait TestFormat: Sized {
         fn fmt_test(&self, s: &mut String);
