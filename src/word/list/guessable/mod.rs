@@ -54,17 +54,11 @@ impl<const N: usize> Guessable<N> {
     }
 
     pub fn includes_answers(&self, answers: &Answers<N>) -> bool {
-        self.answers_intersection(answers) == 
+        self.answers_intersection(answers) == answers.to_set()
     }
 
     pub fn excludes_answers(&self, answers: &Answers<N>) -> bool {
-        for word in answers {
-            if self.contains(*word) {
-                return false;
-            }
-        }
-
-        true
+        self.answers_intersection(answers).is_empty()
     }
 
     pub fn answers_intersection<'word>(

@@ -84,12 +84,12 @@ impl<const N: usize> WordsListNew<N> {
     /// that **does not** contain the words in the provided [`Answers`].
     ///
     /// # Panics
-    /// Panics if the [`Guessable`]
+    /// Panics if `guessable` does not entirely exclude `answers`.
     pub fn new_exclusive(
         mut guessable: guessable::Guessable<N>,
         answers: answers::Answers<N>,
     ) -> Self {
-        assert!(!guessable.includes_answers(&answers));
+        assert!(guessable.excludes_answers(&answers));
         answers.append_to_guessable(&mut guessable);
         Self { guessable, answers }
     }
@@ -109,6 +109,8 @@ impl<const N: usize> WordsListNew<N> {
     pub fn new(guessable: guessable::Guessable<N>, answers: answers::Answers<N>) -> Self {
         let new = if guessable.includes_answers(&answers) {
             Self::new_inclusive
+        } else if guessable.excludes_answers(&answers) {
+            Self::new_exclusive
         } else {
             Self::new_exclusive
         };

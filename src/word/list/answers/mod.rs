@@ -1,14 +1,18 @@
+use std::collections::HashSet;
+
 use crate::{word::words::Words, Word};
 
 use super::guessable::Guessable;
 
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
+type Base<const N: usize> = Words<N>;
+
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Answers<const N: usize> {
-    base: Words<N>,
+    base: Base<N>,
 }
 
 impl<const N: usize> Answers<N> {
-    const unsafe fn new_unchecked(words: Words<N>) -> Self {
+    unsafe fn new_unchecked(words: Words<N>) -> Self {
         Self { base: words }
     }
 
@@ -43,7 +47,7 @@ impl<const N: usize> Answers<N> {
 
 impl<const N: usize> IntoIterator for Answers<N> {
     type Item = Word<N>;
-    type IntoIter = <Words<N> as IntoIterator>::IntoIter;
+    type IntoIter = <Base<N> as IntoIterator>::IntoIter;
 
     fn into_iter(self) -> Self::IntoIter {
         self.base.into_iter()
@@ -52,7 +56,7 @@ impl<const N: usize> IntoIterator for Answers<N> {
 
 impl<'a, const N: usize> IntoIterator for &'a Answers<N> {
     type Item = &'a Word<N>;
-    type IntoIter = <&'a Words<N> as IntoIterator>::IntoIter;
+    type IntoIter = <&'a Base<N> as IntoIterator>::IntoIter;
 
     fn into_iter(self) -> Self::IntoIter {
         self.base.iter()
@@ -66,6 +70,14 @@ impl<const N: usize> Answers<N> {
 
     pub fn as_slice(&self) -> &[Word<N>] {
         &self.base
+    }
+
+    pub fn into_set(self) -> HashSet<Word<N>> {
+        self.into_iter().collect()
+    }
+
+    pub fn to_set(&self) -> HashSet<&Word<N>> {
+        self.into_iter().collect()
     }
 
     #[cfg(feature = "rand")]
