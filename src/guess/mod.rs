@@ -121,4 +121,58 @@ mod tests {
             })
         }
     }
+
+    macro_rules! string_match {
+        ($($word:ident, $guess:ident => $result:literal;)+) => {
+            paste::paste! {
+                $(
+                    #[test]
+                    fn [<$word _ $guess>]() {
+                        use fmt::Test;
+
+                        let word: crate::Word<5> = crate::Word::from_str_unchecked(&stringify!($word)).unwrap();
+                        let guess = word.guess_word(crate::Word::from_str_unchecked(&stringify!($guess)).unwrap());
+                        pretty_assertions::assert_eq!(
+                            guess.to_string(), $result
+                        )
+                    }
+                )+
+            }
+        };
+    }
+
+    string_match! {
+        amber, amber => "OOOOO";
+        amber, arbor => "O.O.O";
+        amber, handy => ".o...";
+        addra, opals => "..o..";
+        mummy, tummy => ".OOOO";
+
+        // these tests were made by annie!!
+        vital, audio => "o..o.";
+        scene, eager => "o..o.";
+        today, level => ".....";
+        phone, crown => "..O.o";
+        royal, newly => "...oo";
+        baker, dying => ".....";
+        level, topic => ".....";
+        blind, began => "O...o";
+        movie, storm => "..o.o";
+        spend, super => "O.oo.";
+        still, worth => "...o.";
+        build, usage => "o....";
+        badly, alive => "oo...";
+        harry, count => ".....";
+        split, house => "...o.";
+        quite, trust => "o.o..";
+        flash, death => "..O.O";
+        peter, crime => ".o..o";
+        title, china => "..o..";
+        these, smith => "o..oo";
+        sport, lying => ".....";
+        solve, shoot => "O.o..";
+        prior, whole => "..o..";
+        maybe, fruit => ".....";
+        event, dealt => ".o..O";
+    }
 }
