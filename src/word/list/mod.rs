@@ -70,3 +70,5 @@ pub trait WordsList<const WORD_LEN: usize> {
         self.collection_mut().push(word)
     }
 }
+
+pub mod guesses;

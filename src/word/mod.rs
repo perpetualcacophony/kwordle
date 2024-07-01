@@ -16,6 +16,8 @@ pub mod list;
 mod validity;
 pub use validity::WordValidity;
 
+mod words;
+
 #[allow(unused_imports)]
 pub use list::WordsList;
 
@@ -142,6 +144,12 @@ impl<'w, const LEN: usize> PartialEq<&'w Self> for Word<LEN> {
 impl<'w, const LEN: usize> PartialEq<Word<LEN>> for &'w Word<LEN> {
     fn eq(&self, other: &Word<LEN>) -> bool {
         (*self).eq(other)
+    }
+}
+
+impl<const LEN: usize> PartialEq<Letters<LEN>> for Word<LEN> {
+    fn eq(&self, other: &Letters<LEN>) -> bool {
+        self.letters.eq(other)
     }
 }
 
