@@ -54,6 +54,40 @@ impl Letter {
     pub fn to_char(self) -> char {
         self.into()
     }
+
+    pub const fn from_char(ch: char) -> Option<Self> {
+        let lowercase = ch.to_ascii_lowercase();
+
+        match lowercase {
+            'a' => Some(Letter::A),
+            'b' => Some(Letter::B),
+            'c' => Some(Letter::C),
+            'd' => Some(Letter::D),
+            'e' => Some(Letter::E),
+            'f' => Some(Letter::F),
+            'g' => Some(Letter::G),
+            'h' => Some(Letter::H),
+            'i' => Some(Letter::I),
+            'j' => Some(Letter::J),
+            'k' => Some(Letter::K),
+            'l' => Some(Letter::L),
+            'm' => Some(Letter::M),
+            'n' => Some(Letter::N),
+            'o' => Some(Letter::O),
+            'p' => Some(Letter::P),
+            'q' => Some(Letter::Q),
+            'r' => Some(Letter::R),
+            's' => Some(Letter::S),
+            't' => Some(Letter::T),
+            'u' => Some(Letter::U),
+            'v' => Some(Letter::V),
+            'w' => Some(Letter::W),
+            'x' => Some(Letter::X),
+            'y' => Some(Letter::Y),
+            'z' => Some(Letter::Z),
+            _ => None,
+        }
+    }
 }
 
 impl From<Letter> for char {

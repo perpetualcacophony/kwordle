@@ -8,13 +8,15 @@ use crate::Letter;
 mod error;
 pub use error::ParseLettersError;
 
+use super::ParseLetterError;
+
 #[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Letters<const N: usize, L = Letter> {
     array: [L; N],
 }
 
 impl<const N: usize> Letters<N> {
-    pub fn new(array: [Letter; N]) -> Self {
+    pub const fn new(array: [Letter; N]) -> Self {
         Self { array }
     }
 }

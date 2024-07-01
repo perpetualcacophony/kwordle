@@ -18,6 +18,9 @@ pub use validity::WordValidity;
 
 mod words;
 
+#[cfg(test)]
+pub mod constants;
+
 #[allow(unused_imports)]
 pub use list::WordsList;
 

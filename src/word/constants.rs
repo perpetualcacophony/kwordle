@@ -1,0 +1,11 @@
+use crate::Word;
+
+#[allow(non_snake_case)]
+pub fn AMBER() -> Word<5> {
+    Word::from_str_unchecked("amber").expect("hard-coded word should be valid")
+}
+
+#[allow(non_snake_case)]
+pub fn SONAR() -> Word<5> {
+    Word::from_str_unchecked("sonar").expect("hard-coded word should be valid")
+}

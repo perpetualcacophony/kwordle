@@ -98,3 +98,16 @@ impl<'a, const N: usize> IntoIterator for &'a Words<N> {
         self.as_slice().into_iter()
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::Words;
+    use crate::word::constants as words;
+
+    #[test]
+    fn contains() {
+        let words = Words::from_vec(vec![words::AMBER()]);
+        assert!(words.contains(&words::AMBER()));
+        assert!(!words.contains(&words::SONAR()))
+    }
+}

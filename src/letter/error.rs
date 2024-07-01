@@ -7,11 +7,11 @@ pub enum ParseLetterError {
 }
 
 impl ParseLetterError {
-    pub fn invalid_char(value: char) -> Self {
+    pub const fn invalid_char(value: char) -> Self {
         Self::InvalidChar(value)
     }
 
-    pub fn parse_char(error: std::char::ParseCharError) -> Self {
+    pub const fn parse_char(error: std::char::ParseCharError) -> Self {
         Self::ParseChar(error)
     }
 }
