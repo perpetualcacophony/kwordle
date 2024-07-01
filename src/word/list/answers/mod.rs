@@ -2,13 +2,13 @@ use crate::{word::words::Words, Word};
 
 use super::guessable::Guessable;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Answers<const N: usize> {
     base: Words<N>,
 }
 
 impl<const N: usize> Answers<N> {
-    fn new_unchecked(words: Words<N>) -> Self {
+    const unsafe fn new_unchecked(words: Words<N>) -> Self {
         Self { base: words }
     }
 
@@ -16,7 +16,7 @@ impl<const N: usize> Answers<N> {
         if words.is_empty() {
             None
         } else {
-            Some(Self::new_unchecked(words))
+            unsafe { Some(Self::new_unchecked(words)) }
         }
     }
 
@@ -28,7 +28,7 @@ impl<const N: usize> Answers<N> {
         Self::try_new(base)
     }
 
-    fn from_iter_unchecked<I>(iter: I) -> Self
+    unsafe fn from_iter_unchecked<I>(iter: I) -> Self
     where
         I: IntoIterator<Item = Word<N>>,
     {
@@ -37,7 +37,7 @@ impl<const N: usize> Answers<N> {
     }
 
     pub fn from_guessable(guessable: &Guessable<N>) -> Self {
-        Self::from_iter_unchecked(guessable.into_iter().copied())
+        unsafe { Self::from_iter_unchecked(guessable.into_iter().copied()) }
     }
 }
 
@@ -50,9 +50,22 @@ impl<const N: usize> IntoIterator for Answers<N> {
     }
 }
 
+impl<'a, const N: usize> IntoIterator for &'a Answers<N> {
+    type Item = &'a Word<N>;
+    type IntoIter = <&'a Words<N> as IntoIterator>::IntoIter;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.base.iter()
+    }
+}
+
 impl<const N: usize> Answers<N> {
-    fn append_to_guessable(&self, guessable: &mut super::guessable::Guessable<N>) {
+    pub fn append_to_guessable(&self, guessable: &mut super::guessable::Guessable<N>) {
         guessable.extend(self.clone())
+    }
+
+    pub fn as_slice(&self) -> &[Word<N>] {
+        &self.base
     }
 
     #[cfg(feature = "rand")]

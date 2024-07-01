@@ -2,7 +2,7 @@ use std::{collections::HashSet, str::FromStr};
 
 use crate::{word::words::Words, Letters, Word};
 
-use super::ParseWordsListError;
+use super::{answers::Answers, collection::Adapter, ParseWordsListError};
 
 pub struct Guessable<const N: usize> {
     set: HashSet<Word<N>>,
@@ -10,7 +10,7 @@ pub struct Guessable<const N: usize> {
 
 /// Constructors
 impl<const N: usize> Guessable<N> {
-    fn new_unchecked(set: HashSet<Word<N>>) -> Self {
+    const unsafe fn new_unchecked(set: HashSet<Word<N>>) -> Self {
         Self { set }
     }
 
@@ -18,7 +18,7 @@ impl<const N: usize> Guessable<N> {
         if set.is_empty() {
             None
         } else {
-            Some(Self::new_unchecked(set))
+            unsafe { Some(Self::new_unchecked(set)) }
         }
     }
 
@@ -51,6 +51,35 @@ impl<const N: usize> Guessable<N> {
 
     pub fn iter(&self) -> std::collections::hash_set::Iter<'_, Word<N>> {
         self.into_iter()
+    }
+
+    pub fn includes_answers(&self, answers: &Answers<N>) -> bool {
+        self.answers_intersection(answers) == 
+    }
+
+    pub fn excludes_answers(&self, answers: &Answers<N>) -> bool {
+        for word in answers {
+            if self.contains(*word) {
+                return false;
+            }
+        }
+
+        true
+    }
+
+    pub fn answers_intersection<'word>(
+        &self,
+        answers: &'word Answers<N>,
+    ) -> HashSet<&'word Word<N>> {
+        let mut intersection = HashSet::new();
+
+        for word in answers {
+            if self.contains(*word) {
+                intersection.push(word);
+            }
+        }
+
+        intersection
     }
 }
 

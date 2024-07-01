@@ -2,7 +2,7 @@ use std::{ops::Deref, str::FromStr};
 
 use crate::{letter::letters::ParseLettersError, Letters, Word};
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Words<const N: usize> {
     base: Box<[Word<N>]>,
 }
