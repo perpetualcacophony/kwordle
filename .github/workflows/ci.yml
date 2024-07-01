@@ -23,9 +23,6 @@ jobs:
     - name: Install rust
       uses: dtolnay/rust-toolchain@nightly
 
-    - name: Install cargo-hack
-      uses: taiki-e/install-action@cargo-hack
-
     - name: Cache rust
       uses: Swatinem/rust-cache@v2
 
@@ -35,5 +32,21 @@ jobs:
     - name: Run tests
       run: cargo test
 
-    - name: Check features
-      run: cargo hack check --feature-powerset --no-dev-deps
+  features:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+  
+      - name: Install rust
+        uses: dtolnay/rust-toolchain@nightly
+  
+      - name: Install cargo-hack
+        uses: taiki-e/install-action@cargo-hack
+  
+      - name: Cache rust
+        uses: Swatinem/rust-cache@v2
+  
+      - name: Check features
+        run: cargo hack check --feature-powerset --no-dev-deps

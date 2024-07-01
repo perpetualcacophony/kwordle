@@ -16,5 +16,6 @@ pretty_assertions = "1.4.0"
 
 [features]
 default = ["rand_full", "classic_words"]
+rand = ["dep:rand"]
 rand_full = ["rand", "rand/std", "rand/std_rng"]
 classic_words = []
