@@ -75,8 +75,8 @@ pub mod answers;
 pub mod guessable;
 
 pub struct WordsListNew<const N: usize> {
-    guessable: guessable::Guessable<N>,
-    answers: answers::Answers<N>,
+    pub guessable: guessable::Guessable<N>,
+    pub answers: answers::Answers<N>,
 }
 
 impl<const N: usize> WordsListNew<N> {

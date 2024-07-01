@@ -1,4 +1,4 @@
-use std::collections::HashSet;
+use std::{collections::HashSet, str::FromStr};
 
 use crate::{word::words::Words, Word};
 
@@ -97,5 +97,13 @@ impl<const N: usize> Answers<N> {
     #[cfg(feature = "rand_full")]
     pub fn random(&self) -> Word<N> {
         self.random_with(&mut rand::thread_rng())
+    }
+}
+
+impl<const N: usize> FromStr for Answers<N> {
+    type Err = <Base<N> as FromStr>::Err;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        Ok(unsafe { Self::new_unchecked(Base::from_str(s)?) })
     }
 }
