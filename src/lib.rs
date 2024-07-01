@@ -23,12 +23,7 @@ pub use word::Word;
 pub mod game;
 pub use game::Game;
 
-pub mod words_list;
-
 #[doc(inline)]
 pub use word::WordsList;
 
 pub mod classic;
-
-mod sealed;
-use sealed::Sealed;

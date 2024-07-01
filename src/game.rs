@@ -1,18 +1,15 @@
 use crate::{Guesses, Word, WordsList};
 
-pub struct Game<List, const WORD_LEN: usize> {
+pub struct Game<const WORD_LEN: usize> {
     answer: Word<WORD_LEN>,
-    words_list: List,
+    words_list: WordsList<WORD_LEN>,
     guesses: Guesses<WORD_LEN>,
 }
 
-impl<List, const WORD_LEN: usize> Game<List, WORD_LEN>
-where
-    List: WordsList<WORD_LEN>,
-{
+impl<const WORD_LEN: usize> Game<WORD_LEN> {
     pub fn new(
         answer: Word<WORD_LEN>,
-        words_list: List,
+        words_list: WordsList<WORD_LEN>,
         max_guesses: impl Into<Option<usize>>,
     ) -> Self {
         Self {
@@ -22,10 +19,14 @@ where
         }
     }
 
-    pub fn guess_str(&self, s: &str) -> Result<crate::Guess<WORD_LEN>, GameError> {
+    pub fn guess_str(&mut self, s: &str) -> Result<crate::Guess<WORD_LEN>, GameError> {
         let word = Word::from_str(&self.words_list, s).map_err(GameError::InvalidWord)?;
 
-        Ok(self.answer.guess_word(word))
+        let guess = self.answer.guess_word(word);
+
+        self.guesses.push(guess);
+
+        Ok(guess)
     }
 }
 

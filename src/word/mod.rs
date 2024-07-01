@@ -43,12 +43,12 @@ impl<const LEN: usize> Word<LEN> {
     /// # Errors
     /// Returns [`ParseWordError::NotInList`] if the word cannot be found in the list.
     pub fn from_letters(
-        list: &impl crate::WordsList<LEN>,
+        list: &WordsList<LEN>,
         letters: Letters<LEN>,
     ) -> Result<Self, error::ParseWordError> {
         let unchecked = Self::new_unchecked(letters);
 
-        if list.contains(unchecked) {
+        if list.guessable.contains(unchecked) {
             Ok(unchecked)
         } else {
             Err(error::ParseWordError::NotInList {
@@ -62,10 +62,7 @@ impl<const LEN: usize> Word<LEN> {
     /// # Errors
     /// Returns a [`ParseLettersError`] if parsing the string fails,
     /// or [`ParseWordError::NotInList`] if the word cannot be found in the list.
-    pub fn from_str(
-        list: &impl crate::WordsList<LEN>,
-        s: &str,
-    ) -> Result<Self, error::ParseWordError> {
+    pub fn from_str(list: &WordsList<LEN>, s: &str) -> Result<Self, error::ParseWordError> {
         let letters = Letters::from_str(s)?;
         Self::from_letters(list, letters)
     }
@@ -105,7 +102,7 @@ impl<const LEN: usize> Word<LEN> {
     /// Returns a [`ParseWordError`] if parsing the string into a `Word` fails.
     pub fn guess_str(
         self,
-        list: &impl crate::WordsList<LEN>,
+        list: &WordsList<LEN>,
         s: &str,
     ) -> Result<super::Guess<LEN>, error::ParseWordError> {
         let word = Self::from_str(list, s)?;

@@ -2,7 +2,7 @@ use std::{collections::HashSet, str::FromStr};
 
 use crate::{word::words::Words, Letters, Word};
 
-use super::{answers::Answers, collection::Adapter, ParseWordsListError};
+use super::{answers::Answers, ParseWordsListError};
 
 pub struct Guessable<const N: usize> {
     set: HashSet<Word<N>>,
@@ -69,7 +69,7 @@ impl<const N: usize> Guessable<N> {
 
         for word in answers {
             if self.contains(*word) {
-                intersection.push(word);
+                intersection.insert(word);
             }
         }
 
