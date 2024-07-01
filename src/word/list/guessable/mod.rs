@@ -4,12 +4,12 @@ use crate::{word::words::Words, Letters, Word};
 
 use super::ParseWordsListError;
 
-pub struct Guesses<const N: usize> {
+pub struct Guessable<const N: usize> {
     set: HashSet<Word<N>>,
 }
 
 /// Constructors
-impl<const N: usize> Guesses<N> {
+impl<const N: usize> Guessable<N> {
     fn new_unchecked(set: HashSet<Word<N>>) -> Self {
         Self { set }
     }
@@ -31,7 +31,7 @@ impl<const N: usize> Guesses<N> {
     }
 }
 
-impl<const N: usize> FromStr for Guesses<N> {
+impl<const N: usize> FromStr for Guessable<N> {
     type Err = ParseWordsListError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
@@ -40,7 +40,7 @@ impl<const N: usize> FromStr for Guesses<N> {
     }
 }
 
-impl<const N: usize> Guesses<N> {
+impl<const N: usize> Guessable<N> {
     pub fn contains(&self, word: Word<N>) -> bool {
         self.set.contains(&word)
     }
