@@ -155,19 +155,64 @@ impl<const LEN: usize> PartialEq<Letters<LEN>> for Word<LEN> {
 
 #[cfg(test)]
 mod tests {
-    use super::Word;
-
-    fn amber() -> Word<5> {
-        Word::from_str_unchecked("amber").expect("'amber' should be a valid 5-letter Word")
-    }
+    use super::constants as words;
+    use pretty_assertions::{assert_eq, assert_ne};
 
     #[test]
     fn to_string() {
-        assert_eq!(amber().to_string().as_str(), "amber");
+        assert_eq!(words::AMBER().to_string().as_str(), "amber");
+        assert_ne!(words::SONAR().to_string().as_str(), "amber");
     }
 
     #[test]
     fn partial_eq_str() {
-        assert_eq!(amber(), "amber")
+        assert_eq!(words::AMBER(), "amber");
+        assert_ne!(words::SONAR(), "amber")
+    }
+
+    mod letters_map {
+        use crate::Letter;
+
+        use super::{assert_eq, words};
+
+        #[test]
+        fn amber() {
+            let word = words::AMBER();
+            let map = word.letters_map();
+
+            for letter in word.letters {
+                assert!(map.contains_letter(letter));
+                assert_eq!(map.count_letter(letter), 1);
+            }
+        }
+
+        #[test]
+        fn mummy() {
+            let word = words::MUMMY();
+            let map = word.letters_map();
+
+            for letter in word.letters {
+                assert!(map.contains_letter(letter))
+            }
+
+            assert_eq!(map.count_letter(Letter::M), 3);
+            assert_eq!(map.count_letter(Letter::U), 1);
+            assert_eq!(map.count_letter(Letter::Y), 1);
+        }
+
+        #[test]
+        fn tummy() {
+            let word = words::TUMMY();
+            let map = word.letters_map();
+
+            for letter in word.letters {
+                assert!(map.contains_letter(letter))
+            }
+
+            assert_eq!(map.count_letter(Letter::T), 1);
+            assert_eq!(map.count_letter(Letter::U), 1);
+            assert_eq!(map.count_letter(Letter::M), 2);
+            assert_eq!(map.count_letter(Letter::Y), 1);
+        }
     }
 }
