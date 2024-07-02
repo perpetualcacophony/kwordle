@@ -6,6 +6,9 @@ pub use letters::Letters;
 mod error;
 pub use error::ParseLetterError;
 
+#[cfg(feature = "serde")]
+mod serde;
+
 macro_rules! match_letter {
     ($var:expr; $($letter:ident => $expr:expr),+) => {
         match $var {

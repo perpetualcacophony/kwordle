@@ -9,6 +9,11 @@ mod error;
 pub use error::ParseLettersError;
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[cfg_attr(feature = "serde_derive", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(
+    feature = "serde_derive",
+    serde(bound = "[L; N]: serde::Serialize + for<'a> serde::Deserialize<'a>")
+)]
 pub struct Letters<const N: usize, L = Letter> {
     array: [L; N],
 }

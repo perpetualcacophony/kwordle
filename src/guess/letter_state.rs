@@ -6,6 +6,7 @@ use crate::letter::Letter;
 /// In a more general sense, this is the primary means by which information
 /// about the puzzle's answer is communicated to the player.
 #[derive(Debug, Default, PartialEq, Eq, Clone, Copy)]
+#[cfg_attr(feature = "serde_derive", derive(serde::Serialize, serde::Deserialize))]
 pub enum LetterState {
     #[default]
     NotPresent,

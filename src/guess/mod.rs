@@ -9,8 +9,14 @@ pub use guesses::Guesses;
 
 mod letter_state;
 pub use letter_state::LetterState;
-
 #[derive(Copy, Clone, Debug)]
+#[cfg_attr(feature = "serde_derive", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(
+    feature = "serde_derive",
+    serde(
+        bound = "crate::Letters<N, (Letter, LetterState)>: serde::Serialize + for<'a> serde::Deserialize<'a>"
+    )
+)]
 pub struct Guess<const N: usize> {
     letters: Letters<N, (Letter, LetterState)>,
 }
