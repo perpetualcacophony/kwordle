@@ -26,6 +26,7 @@ pub use list::WordsList;
 
 /// Represents a single valid word from a specific [`WordsList`].
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[cfg_attr(feature = "serde_derive", derive(serde::Serialize, serde::Deserialize))]
 pub struct Word<const LEN: usize> {
     letters: Letters<LEN>,
 }
