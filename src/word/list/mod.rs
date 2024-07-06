@@ -6,6 +6,7 @@ pub mod answers;
 pub mod guessable;
 
 // TODO: should guessable really contain answers? think about fn `contains_guess` or something
+#[derive(Debug, Clone, PartialEq)]
 pub struct WordsList<const N: usize> {
     pub guessable: guessable::Guessable<N>,
     pub answers: answers::Answers<N>,

@@ -4,6 +4,7 @@ use crate::{Letters, Word};
 
 use super::{answers::Answers, ParseWordsListError};
 
+#[derive(Debug, Clone, PartialEq)]
 pub struct Guessable<const N: usize> {
     set: HashSet<Word<N>>,
 }
