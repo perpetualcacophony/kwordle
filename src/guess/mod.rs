@@ -57,7 +57,7 @@ impl<const N: usize> Guess<N> {
         set
     }
 
-    pub fn unused_letters_with(self, set: &mut BTreeSet<Letter>) {
+    fn unused_letters_with(self, set: &mut BTreeSet<Letter>) {
         for LetterWithState { letter, .. } in self {
             set.remove(&letter);
         }

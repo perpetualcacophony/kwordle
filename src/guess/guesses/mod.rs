@@ -18,6 +18,10 @@ impl<const N: usize> Guesses<N> {
         }
     }
 
+    pub fn latest_is_correct(&self) -> bool {
+        self.latest().is_some_and(Guess::is_correct)
+    }
+
     pub fn latest(&self) -> Option<Guess<N>>
     where
         Guess<N>: Copy,
