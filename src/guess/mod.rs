@@ -10,7 +10,7 @@ use crate::Array;
 mod letter_state;
 pub use letter_state::LetterState;
 
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[cfg_attr(feature = "serde_derive", derive(serde::Serialize, serde::Deserialize))]
 #[cfg_attr(
     feature = "serde_derive",
@@ -65,6 +65,7 @@ impl<const N: usize> Guess<N> {
 }
 
 #[derive(Clone, Copy, Debug, Hash, PartialEq, Eq)]
+#[cfg_attr(feature = "serde_derive", derive(serde::Serialize, serde::Deserialize))]
 pub struct LetterWithState {
     letter: Letter,
     state: LetterState,
