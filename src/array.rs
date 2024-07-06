@@ -104,3 +104,12 @@ where
         )?))
     }
 }
+
+impl<T, const N: usize> Default for Array<T, N>
+where
+    T: Default + Copy,
+{
+    fn default() -> Self {
+        Self::new([T::default(); N])
+    }
+}
