@@ -35,10 +35,7 @@ pub struct Word<const LEN: usize> {
     letters: Letters<LEN>,
 }
 
-impl<const LEN: usize> Word<LEN>
-where
-    Letters<LEN>: Copy,
-{
+impl<const LEN: usize> Word<LEN> {
     pub(crate) fn new_unchecked(letters: Letters<LEN>) -> Self {
         Self { letters }
     }

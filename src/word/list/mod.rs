@@ -50,4 +50,9 @@ impl<const N: usize> WordsList<N> {
 
         new(guessable, answers)
     }
+
+    #[cfg(feature = "classic_words")]
+    pub fn classic() -> WordsList<5> {
+        crate::classic::words_list()
+    }
 }
