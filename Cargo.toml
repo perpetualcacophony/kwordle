@@ -1,6 +1,6 @@
 [package]
 name = "kwordle"
-version = "0.2.0"
+version = "0.3.0"
 edition = "2021"
 repository = "https://github.com/perpetualcacophony/kwordle"
 readme = "README.md"
@@ -12,7 +12,7 @@ optional = true
 default-features = false
 
 [dependencies.serde]
-version = "1.0.*"
+version = "~1.0"
 optional = true
 
 [dev-dependencies]
