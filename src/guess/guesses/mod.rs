@@ -1,4 +1,6 @@
-use crate::guess::Guess;
+use std::collections::BTreeSet;
+
+use crate::{guess::Guess, Letter};
 
 #[derive(Clone, Debug)]
 pub struct Guesses<const N: usize = 5> {
@@ -50,6 +52,16 @@ impl<const N: usize> Guesses<N> {
 
     pub fn iter(&self) -> <&Self as IntoIterator>::IntoIter {
         self.into_iter()
+    }
+
+    pub fn unused_letters(&self) -> BTreeSet<Letter> {
+        let mut set = crate::letter::alphabet_set();
+
+        for guess in &self.vec {
+            guess.unused_letters_with(&mut set);
+        }
+
+        set
     }
 }
 

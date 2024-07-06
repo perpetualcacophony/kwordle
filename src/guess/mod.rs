@@ -1,4 +1,4 @@
-use std::ops::Index;
+use std::{collections::BTreeSet, ops::Index};
 
 use super::letter::Letter;
 
@@ -9,6 +9,7 @@ use crate::Array;
 
 mod letter_state;
 pub use letter_state::LetterState;
+
 #[derive(Copy, Clone, Debug)]
 #[cfg_attr(feature = "serde_derive", derive(serde::Serialize, serde::Deserialize))]
 #[cfg_attr(
@@ -48,6 +49,18 @@ impl<const N: usize> Guess<N> {
 
     pub fn iter_mut(&mut self) -> IterMut<'_, N> {
         self.into_iter()
+    }
+
+    pub fn unused_letters(self) -> BTreeSet<Letter> {
+        let mut set = crate::letter::alphabet_set();
+        self.unused_letters_with(&mut set);
+        set
+    }
+
+    pub fn unused_letters_with(self, set: &mut BTreeSet<Letter>) {
+        for LetterWithState { letter, .. } in self {
+            set.remove(&letter);
+        }
     }
 }
 

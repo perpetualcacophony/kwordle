@@ -1,10 +1,36 @@
-use std::{fmt::Write, str::FromStr};
+use std::{collections::BTreeSet, fmt::Write, str::FromStr};
 
 pub mod letters;
 pub use letters::Letters;
 
 mod error;
 pub use error::ParseLetterError;
+
+pub const ALPHABET: std::ops::RangeInclusive<Letter> = Letter::A..=Letter::Z;
+
+impl std::iter::Step for Letter {
+    fn forward_checked(start: Self, count: usize) -> Option<Self> {
+        std::iter::Step::forward_checked(char::from(start), count).and_then(Self::from_char)
+    }
+
+    fn backward_checked(start: Self, count: usize) -> Option<Self> {
+        std::iter::Step::backward_checked(char::from(start), count).and_then(Self::from_char)
+    }
+
+    fn steps_between(start: &Self, end: &Self) -> Option<usize> {
+        std::iter::Step::steps_between(&char::from(*start), &char::from(*end))
+    }
+}
+
+pub fn alphabet_set() -> BTreeSet<Letter> {
+    let mut set = BTreeSet::new();
+
+    for letter in ALPHABET {
+        set.insert(letter);
+    }
+
+    set
+}
 
 #[cfg(feature = "serde")]
 mod serde;
@@ -50,11 +76,7 @@ pub enum Letter {
 }
 
 impl Letter {
-    pub fn as_char(&self) -> char {
-        (*self).to_char()
-    }
-
-    pub fn to_char(self) -> char {
+    pub fn as_char(self) -> char {
         self.into()
     }
 
