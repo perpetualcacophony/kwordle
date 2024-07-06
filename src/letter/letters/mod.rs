@@ -9,7 +9,7 @@ pub use error::ParseLettersError;
 #[cfg_attr(feature = "serde_derive", derive(serde::Serialize, serde::Deserialize))]
 #[cfg_attr(
     feature = "serde_derive",
-    serde(bound = "[L; N]: serde::Serialize + for<'a> serde::Deserialize<'a>")
+    serde(bound = "Array<Letter, N>: serde::Serialize + for<'a> serde::Deserialize<'a>")
 )]
 pub struct Letters<const N: usize> {
     array: Array<Letter, N>,

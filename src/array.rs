@@ -74,3 +74,33 @@ impl<T, const N: usize> IntoIterator for Array<T, N> {
         self.array.into_iter()
     }
 }
+
+#[cfg(feature = "serde")]
+impl<T, const N: usize> serde::Serialize for Array<T, N>
+where
+    T: serde::Serialize,
+    [T; N]: serde::Serialize,
+{
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        <[T; N] as serde::Serialize>::serialize(&self.array, serializer)
+    }
+}
+
+#[cfg(feature = "serde")]
+impl<'de, T, const N: usize> serde::Deserialize<'de> for Array<T, N>
+where
+    T: serde::Deserialize<'de>,
+    [T; N]: serde::Deserialize<'de>,
+{
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        Ok(Self::new(<[T; N] as serde::Deserialize<'de>>::deserialize(
+            deserializer,
+        )?))
+    }
+}
