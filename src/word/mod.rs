@@ -25,7 +25,7 @@ pub mod constants;
 pub use list::WordsList;
 
 /// Represents a single valid word from a specific [`WordsList`].
-#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Copy, Debug, Clone, Hash, PartialEq, Eq, PartialOrd, Ord)]
 #[cfg_attr(feature = "serde_derive", derive(serde::Serialize, serde::Deserialize))]
 #[cfg_attr(
     feature = "serde_derive",
@@ -35,7 +35,10 @@ pub struct Word<const LEN: usize> {
     letters: Letters<LEN>,
 }
 
-impl<const LEN: usize> Word<LEN> {
+impl<const LEN: usize> Word<LEN>
+where
+    Letters<LEN>: Copy,
+{
     pub(crate) fn new_unchecked(letters: Letters<LEN>) -> Self {
         Self { letters }
     }
@@ -60,7 +63,7 @@ impl<const LEN: usize> Word<LEN> {
             Ok(unchecked)
         } else {
             Err(error::ParseWordError::NotInList {
-                letters: unchecked.letters.into(),
+                letters: unchecked.letters.to_vec(),
             })
         }
     }
@@ -83,21 +86,21 @@ impl<const LEN: usize> Word<LEN> {
     /// Checks the letters of another `Word` against this one,
     /// returning a [`Guess`](super::Guess) with the status of each guessed letter.
     pub fn guess_word(self, word: Self) -> super::guess::Guess<LEN> {
-        let mut guess = crate::guess::Guess::none_present(word.letters);
+        let mut guess = crate::guess::Guess::none_present(*word.letters);
         let mut map = self.letters_map();
 
         for (guess, answer) in guess.iter_mut().zip(self.letters.into_iter()) {
-            if guess.0 == answer {
-                guess.1 = LetterState::Correct;
-                map.decrement(guess.0);
+            if guess.letter() == answer {
+                guess.set_state(LetterState::Correct);
+                map.decrement(guess.letter());
             }
         }
 
         for guess in guess.iter_mut() {
             // i don't know why i need to check for correctness again? whatev
-            if map.contains_letter(guess.0) && guess.1 != LetterState::Correct {
-                guess.1 = LetterState::WrongPlace;
-                map.decrement(guess.0);
+            if map.contains_letter(guess.letter()) && guess.state() != LetterState::Correct {
+                guess.set_state(LetterState::WrongPlace);
+                map.decrement(guess.letter());
             }
         }
 
@@ -119,7 +122,10 @@ impl<const LEN: usize> Word<LEN> {
     }
 }
 
-impl<const LEN: usize> Display for Word<LEN> {
+impl<const N: usize> Display for Word<N>
+where
+    Letters<N>: Copy,
+{
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         for letter in self.letters {
             Display::fmt(&letter, f)?;

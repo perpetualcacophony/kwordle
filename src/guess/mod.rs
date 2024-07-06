@@ -1,11 +1,11 @@
-use std::ops::{Index, IndexMut};
-
-use crate::Letters;
+use std::ops::Index;
 
 use super::letter::Letter;
 
 pub mod guesses;
 pub use guesses::Guesses;
+
+use crate::Array;
 
 mod letter_state;
 pub use letter_state::LetterState;
@@ -13,58 +13,145 @@ pub use letter_state::LetterState;
 #[cfg_attr(feature = "serde_derive", derive(serde::Serialize, serde::Deserialize))]
 #[cfg_attr(
     feature = "serde_derive",
-    serde(
-        bound = "crate::Letters<N, (Letter, LetterState)>: serde::Serialize + for<'a> serde::Deserialize<'a>"
-    )
+    serde(bound = "Array<LetterWithState, N>: serde::Serialize + for<'a> serde::Deserialize<'a>")
 )]
 pub struct Guess<const N: usize> {
-    letters: Letters<N, (Letter, LetterState)>,
+    letters: Array<LetterWithState, N>,
 }
 
-pub type Classic = Guess<5>;
-
 impl<const N: usize> Guess<N> {
-    pub fn none_present(letters: Letters<N>) -> Self {
+    pub fn none_present(letters: Array<Letter, N>) -> Self {
         Self {
-            letters: letters.map(LetterState::not_present),
+            letters: Array::new(letters.map(LetterWithState::default)),
         }
     }
 
-    pub fn set_state(&mut self, index: usize, state: LetterState) {
-        self.index_mut(index).1 = state;
+    pub fn is_correct(self) -> bool {
+        self.into_iter().all(LetterWithState::is_correct)
     }
 
-    pub fn iter_mut(&mut self) -> std::slice::IterMut<'_, (Letter, LetterState)> {
-        self.letters.iter_mut()
+    pub fn get(self, index: usize) -> Option<LetterWithState> {
+        self.letters.get(index).copied()
+    }
+
+    pub fn get_mut(&mut self, index: usize) -> Option<&mut LetterWithState> {
+        self.letters.get_mut(index)
+    }
+
+    pub fn as_slice(&self) -> &[LetterWithState] {
+        self.letters.as_slice()
+    }
+
+    pub fn as_mut_slice<'g>(&'g mut self) -> &'g mut [LetterWithState] {
+        self.letters.as_mut_slice()
+    }
+
+    pub fn iter_mut(&mut self) -> IterMut<'_, N> {
+        self.into_iter()
+    }
+}
+
+#[derive(Clone, Copy, Debug, Hash, PartialEq, Eq)]
+pub struct LetterWithState {
+    letter: Letter,
+    state: LetterState,
+}
+
+impl LetterWithState {
+    pub fn new(letter: Letter, state: LetterState) -> Self {
+        Self { letter, state }
+    }
+
+    pub fn default(letter: Letter) -> Self {
+        Self::new(letter, LetterState::default())
+    }
+
+    pub fn letter(self) -> Letter {
+        self.letter
+    }
+
+    pub fn state(self) -> LetterState {
+        self.state
+    }
+
+    pub fn set_state(&mut self, new: LetterState) {
+        self.state = new
+    }
+
+    pub fn is_correct(self) -> bool {
+        self.state().is_correct()
     }
 }
 
 impl<const N: usize> Index<usize> for Guess<N> {
-    type Output = (Letter, LetterState);
+    type Output = LetterWithState;
 
     fn index(&self, index: usize) -> &Self::Output {
         self.letters.index(index)
     }
 }
 
-impl<const N: usize> IndexMut<usize> for Guess<N> {
-    fn index_mut(&mut self, index: usize) -> &mut Self::Output {
-        self.letters.index_mut(index)
+pub struct IntoIter<const N: usize> {
+    base: std::array::IntoIter<LetterWithState, N>,
+}
+
+impl<const N: usize> IntoIter<N> {
+    fn new(guess: Guess<N>) -> Self {
+        Self {
+            base: guess.letters.into_iter(),
+        }
+    }
+}
+
+impl<const N: usize> Iterator for IntoIter<N> {
+    type Item = LetterWithState;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        self.base.next()
     }
 }
 
 impl<const N: usize> IntoIterator for Guess<N> {
-    type IntoIter = std::array::IntoIter<Self::Item, N>;
-    type Item = (Letter, LetterState);
+    type IntoIter = IntoIter<N>;
+    type Item = LetterWithState;
 
     fn into_iter(self) -> Self::IntoIter {
-        self.letters.into_iter()
+        IntoIter::new(self)
+    }
+}
+
+pub struct IterMut<'g, const N: usize> {
+    base: std::slice::IterMut<'g, LetterWithState>,
+}
+
+impl<'g, const N: usize> IterMut<'g, N> {
+    fn new(guess: &'g mut Guess<N>) -> Self {
+        Self {
+            base: guess.letters.iter_mut(),
+        }
+    }
+}
+
+impl<'g, const N: usize> Iterator for IterMut<'g, N> {
+    type Item = &'g mut LetterWithState;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        self.base.next()
+    }
+}
+
+impl<'g, const N: usize> IntoIterator for &'g mut Guess<N> {
+    type Item = &'g mut LetterWithState;
+    type IntoIter = IterMut<'g, N>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        IterMut::new(self)
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use super::{Guess, LetterState};
+    use super::{Array, Guess, LetterState};
 
     mod fmt {
         pub trait Test {
@@ -104,10 +191,13 @@ mod tests {
         }
     }
 
-    impl<const N: usize> fmt::Test for Guess<N> {
+    impl<const N: usize> fmt::Test for Guess<N>
+    where
+        Guess<N>: Copy,
+    {
         fn fmt(&self, f: &mut impl std::fmt::Write) -> std::fmt::Result {
-            for (_, state) in self.letters {
-                fmt::Test::fmt(&state, f)?;
+            for letter in *self {
+                fmt::Test::fmt(&letter.state(), f)?;
             }
 
             Ok(())
@@ -120,10 +210,10 @@ mod tests {
             let letters_states = s
                 .chars()
                 .filter_map(|ch| LetterState::from_str(&ch.to_string()))
-                .map(|l| (crate::Letter::A, l));
+                .map(|l| super::LetterWithState::new(crate::Letter::A, l));
 
             Some(Self {
-                letters: crate::Letters::from_iter(letters_states),
+                letters: Array::from_iter(letters_states).ok()?,
             })
         }
     }

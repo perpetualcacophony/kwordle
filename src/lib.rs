@@ -27,3 +27,6 @@ pub use game::Game;
 pub use word::WordsList;
 
 pub mod classic;
+
+mod array;
+use array::Array;

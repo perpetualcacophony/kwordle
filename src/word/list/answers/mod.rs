@@ -1,10 +1,10 @@
 use std::{collections::HashSet, str::FromStr};
 
-use crate::{word::words::Words, Word};
+use crate::{letter::letters::ParseLettersError, Word};
 
 use super::guessable::Guessable;
 
-type Base<const N: usize> = Words<N>;
+type Base<const N: usize> = Box<[Word<N>]>;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Answers<const N: usize> {
@@ -12,11 +12,11 @@ pub struct Answers<const N: usize> {
 }
 
 impl<const N: usize> Answers<N> {
-    unsafe fn new_unchecked(words: Words<N>) -> Self {
+    unsafe fn new_unchecked(words: Base<N>) -> Self {
         Self { base: words }
     }
 
-    fn try_new(words: Words<N>) -> Option<Self> {
+    fn try_new(words: Base<N>) -> Option<Self> {
         if words.is_empty() {
             None
         } else {
@@ -47,16 +47,16 @@ impl<const N: usize> Answers<N> {
 
 impl<const N: usize> IntoIterator for Answers<N> {
     type Item = Word<N>;
-    type IntoIter = <Base<N> as IntoIterator>::IntoIter;
+    type IntoIter = std::vec::IntoIter<Word<N>>;
 
     fn into_iter(self) -> Self::IntoIter {
-        self.base.into_iter()
+        self.base.into_vec().into_iter()
     }
 }
 
 impl<'a, const N: usize> IntoIterator for &'a Answers<N> {
     type Item = &'a Word<N>;
-    type IntoIter = <&'a Base<N> as IntoIterator>::IntoIter;
+    type IntoIter = std::slice::Iter<'a, Word<N>>;
 
     fn into_iter(self) -> Self::IntoIter {
         self.base.iter()
@@ -88,7 +88,6 @@ impl<const N: usize> Answers<N> {
         use rand::seq::SliceRandom;
 
         self.base
-            .as_slice()
             .choose(rng)
             .copied()
             .expect("Answers should not be empty")
@@ -101,9 +100,9 @@ impl<const N: usize> Answers<N> {
 }
 
 impl<const N: usize> FromStr for Answers<N> {
-    type Err = <Base<N> as FromStr>::Err;
+    type Err = ParseLettersError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        Ok(unsafe { Self::new_unchecked(Base::from_str(s)?) })
+        Ok(unsafe { Self::new_unchecked(crate::word::words::parse_from_str(s)?) })
     }
 }
