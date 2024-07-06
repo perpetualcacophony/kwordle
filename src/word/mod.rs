@@ -31,7 +31,7 @@ pub use list::WordsList;
     feature = "serde_derive",
     serde(bound = "[crate::Letter; LEN]: serde::Serialize + for<'a> serde::Deserialize<'a>")
 )]
-pub struct Word<const LEN: usize> {
+pub struct Word<const LEN: usize = 5> {
     letters: Letters<LEN>,
 }
 

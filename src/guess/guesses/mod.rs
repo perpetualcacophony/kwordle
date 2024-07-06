@@ -1,7 +1,7 @@
 use crate::guess::Guess;
 
 #[derive(Clone, Debug)]
-pub struct Guesses<const N: usize> {
+pub struct Guesses<const N: usize = 5> {
     max: Option<usize>,
     vec: Vec<Guess<N>>,
 }

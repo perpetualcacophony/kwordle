@@ -15,7 +15,7 @@ pub use letter_state::LetterState;
     feature = "serde_derive",
     serde(bound = "Array<LetterWithState, N>: serde::Serialize + for<'a> serde::Deserialize<'a>")
 )]
-pub struct Guess<const N: usize> {
+pub struct Guess<const N: usize = 5> {
     letters: Array<LetterWithState, N>,
 }
 

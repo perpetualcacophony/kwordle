@@ -11,7 +11,7 @@ pub use error::ParseLettersError;
     feature = "serde_derive",
     serde(bound = "Array<Letter, N>: serde::Serialize + for<'a> serde::Deserialize<'a>")
 )]
-pub struct Letters<const N: usize> {
+pub struct Letters<const N: usize = 5> {
     array: Array<Letter, N>,
 }
 
