@@ -1,6 +1,6 @@
 use std::{collections::HashSet, str::FromStr};
 
-use crate::{word::words::Words, Letters, Word};
+use crate::{Letters, Word};
 
 use super::{answers::Answers, ParseWordsListError};
 
@@ -35,8 +35,8 @@ impl<const N: usize> FromStr for Guessable<N> {
     type Err = ParseWordsListError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let words = Words::from_str(s)?;
-        Self::from_words(words).ok_or(ParseWordsListError::EmptyInput)
+        let words = crate::word::words::parse_from_str(s)?;
+        Self::from_words(words.into_vec()).ok_or(ParseWordsListError::EmptyInput)
     }
 }
 

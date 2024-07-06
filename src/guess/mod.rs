@@ -1,11 +1,11 @@
-use std::ops::{Index, IndexMut};
-
-use crate::Letters;
+use std::ops::Index;
 
 use super::letter::Letter;
 
 pub mod guesses;
 pub use guesses::Guesses;
+
+use crate::Array;
 
 mod letter_state;
 pub use letter_state::LetterState;
@@ -18,19 +18,17 @@ pub use letter_state::LetterState;
     )
 )]
 pub struct Guess<const N: usize> {
-    letters: [LetterWithState; N],
+    letters: Array<LetterWithState, N>,
 }
 
-pub type Classic = Guess<5>;
-
 impl<const N: usize> Guess<N> {
-    pub fn none_present(letters: Letters<N>) -> Self {
+    pub fn none_present(letters: Array<Letter, N>) -> Self {
         Self {
-            letters: letters.into_iter().map(LetterWithState::default).collect(),
+            letters: Array::new(letters.map(LetterWithState::default)),
         }
     }
 
-    pub fn is_correct(&self) -> bool {
+    pub fn is_correct(self) -> bool {
         self.into_iter().all(LetterWithState::is_correct)
     }
 
@@ -48,6 +46,10 @@ impl<const N: usize> Guess<N> {
 
     pub fn as_mut_slice<'g>(&'g mut self) -> &'g mut [LetterWithState] {
         self.letters.as_mut_slice()
+    }
+
+    pub fn iter_mut(&mut self) -> IterMut<'_, N> {
+        self.into_iter()
     }
 }
 
@@ -140,9 +142,18 @@ impl<'g, const N: usize> Iterator for IterMut<'g, N> {
     }
 }
 
+impl<'g, const N: usize> IntoIterator for &'g mut Guess<N> {
+    type Item = &'g mut LetterWithState;
+    type IntoIter = IterMut<'g, N>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        IterMut::new(self)
+    }
+}
+
 #[cfg(test)]
 mod tests {
-    use super::{Guess, LetterState};
+    use super::{Array, Guess, LetterState};
 
     mod fmt {
         pub trait Test {
@@ -182,7 +193,10 @@ mod tests {
         }
     }
 
-    impl<const N: usize> fmt::Test for Guess<N> {
+    impl<const N: usize> fmt::Test for Guess<N>
+    where
+        Guess<N>: Copy,
+    {
         fn fmt(&self, f: &mut impl std::fmt::Write) -> std::fmt::Result {
             for letter in *self {
                 fmt::Test::fmt(&letter.state(), f)?;
@@ -198,10 +212,10 @@ mod tests {
             let letters_states = s
                 .chars()
                 .filter_map(|ch| LetterState::from_str(&ch.to_string()))
-                .map(|l| (crate::Letter::A, l));
+                .map(|l| super::LetterWithState::new(crate::Letter::A, l));
 
             Some(Self {
-                letters: crate::Letters::from_iter(letters_states),
+                letters: Array::from_iter(letters_states).ok()?,
             })
         }
     }

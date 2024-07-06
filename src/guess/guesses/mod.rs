@@ -15,7 +15,10 @@ impl<const N: usize> Guesses<N> {
         }
     }
 
-    pub fn latest(&self) -> Option<Guess<N>> {
+    pub fn latest(&self) -> Option<Guess<N>>
+    where
+        Guess<N>: Copy,
+    {
         self.vec.last().copied()
     }
 
