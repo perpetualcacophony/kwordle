@@ -58,6 +58,7 @@ impl<const N: usize> Guesses<N> {
         self.into_iter()
     }
 
+    #[cfg(feature = "step")]
     pub fn unused_letters(&self) -> BTreeSet<Letter> {
         let mut set = crate::letter::alphabet_set();
 

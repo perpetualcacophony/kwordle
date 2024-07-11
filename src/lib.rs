@@ -1,4 +1,4 @@
-#![feature(step_trait)]
+#![cfg_attr(feature = "step", feature(step_trait))]
 
 pub mod letter;
 

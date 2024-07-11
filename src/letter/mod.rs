@@ -8,6 +8,7 @@ pub use error::ParseLetterError;
 
 pub const ALPHABET: std::ops::RangeInclusive<Letter> = Letter::A..=Letter::Z;
 
+#[cfg(feature = "step")]
 impl std::iter::Step for Letter {
     fn forward_checked(start: Self, count: usize) -> Option<Self> {
         std::iter::Step::forward_checked(char::from(start), count).and_then(Self::from_char)
@@ -22,6 +23,7 @@ impl std::iter::Step for Letter {
     }
 }
 
+#[cfg(feature = "step")]
 pub fn alphabet_set() -> BTreeSet<Letter> {
     let mut set = BTreeSet::new();
 
