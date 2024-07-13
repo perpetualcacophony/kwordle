@@ -9,21 +9,6 @@ pub use error::ParseLetterError;
 pub const ALPHABET: std::ops::RangeInclusive<Letter> = Letter::A..=Letter::Z;
 
 #[cfg(feature = "step")]
-impl std::iter::Step for Letter {
-    fn forward_checked(start: Self, count: usize) -> Option<Self> {
-        std::iter::Step::forward_checked(char::from(start), count).and_then(Self::from_char)
-    }
-
-    fn backward_checked(start: Self, count: usize) -> Option<Self> {
-        std::iter::Step::backward_checked(char::from(start), count).and_then(Self::from_char)
-    }
-
-    fn steps_between(start: &Self, end: &Self) -> Option<usize> {
-        std::iter::Step::steps_between(&char::from(*start), &char::from(*end))
-    }
-}
-
-#[cfg(feature = "step")]
 pub fn alphabet_set() -> BTreeSet<Letter> {
     let mut set = BTreeSet::new();
 
@@ -40,6 +25,7 @@ mod serde;
 macro_rules! enum_letter {
     { $($name:ident $ch:literal),+ } => {
         #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, PartialOrd, Ord)]
+        #[cfg_attr(feature = "step", derive(derive_step::Step))]
         pub enum Letter {
             $($name),+
         }
