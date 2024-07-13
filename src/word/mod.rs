@@ -83,7 +83,7 @@ impl<const LEN: usize> Word<LEN> {
     /// Checks the letters of another `Word` against this one,
     /// returning a [`Guess`](super::Guess) with the status of each guessed letter.
     pub fn guess(self, word: Self) -> super::guess::Guess<LEN> {
-        let mut guess = crate::guess::Guess::none_present(*word.letters);
+        let mut guess = crate::guess::Guess::none_present(word.letters);
         let mut map = self.letters_map();
 
         for (guess, answer) in guess.iter_mut().zip(self.letters.into_iter()) {
