@@ -88,15 +88,9 @@ impl From<Letter> for char {
     }
 }
 
-impl<'a> From<&'a Letter> for char {
-    fn from(value: &'a Letter) -> Self {
-        value.to_char()
-    }
-}
-
 impl std::fmt::Display for Letter {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.write_char(self.into())
+        f.write_char(self.to_char())
     }
 }
 
