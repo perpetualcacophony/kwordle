@@ -11,7 +11,7 @@ impl Error for ParseLettersError {
     fn source(&self) -> Option<&(dyn Error + 'static)> {
         match self {
             Self::ParseLetter(err) => Some(err),
-            _ => None,
+            Self::WrongLength(err) => Some(err),
         }
     }
 }

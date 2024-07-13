@@ -82,7 +82,7 @@ impl<const LEN: usize> Word<LEN> {
 
     /// Checks the letters of another `Word` against this one,
     /// returning a [`Guess`](super::Guess) with the status of each guessed letter.
-    pub fn guess_word(self, word: Self) -> super::guess::Guess<LEN> {
+    pub fn guess(self, word: Self) -> super::guess::Guess<LEN> {
         let mut guess = crate::guess::Guess::none_present(*word.letters);
         let mut map = self.letters_map();
 
@@ -115,7 +115,7 @@ impl<const LEN: usize> Word<LEN> {
         s: &str,
     ) -> Result<super::Guess<LEN>, error::ParseWordError> {
         let word = Self::from_str(list, s)?;
-        Ok(self.guess_word(word))
+        Ok(self.guess(word))
     }
 }
 

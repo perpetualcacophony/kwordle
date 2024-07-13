@@ -22,7 +22,7 @@ impl<const WORD_LEN: usize> Game<WORD_LEN> {
     pub fn guess_str(&mut self, s: &str) -> Result<crate::Guess<WORD_LEN>, GameError> {
         let word = Word::from_str(&self.words_list, s).map_err(GameError::InvalidWord)?;
 
-        let guess = self.answer.guess_word(word);
+        let guess = self.answer.guess(word);
 
         self.guesses.push(guess);
 

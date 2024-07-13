@@ -243,7 +243,7 @@ mod tests {
                         use fmt::Test;
 
                         let word: crate::Word<5> = crate::Word::from_str_unchecked(&stringify!($word)).unwrap();
-                        let guess = word.guess_word(crate::Word::from_str_unchecked(&stringify!($guess)).unwrap());
+                        let guess = word.guess(crate::Word::from_str_unchecked(&stringify!($guess)).unwrap());
                         pretty_assertions::assert_eq!(
                             guess.to_string(), $result
                         )

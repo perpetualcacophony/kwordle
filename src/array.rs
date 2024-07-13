@@ -55,6 +55,8 @@ impl std::fmt::Display for LengthError {
     }
 }
 
+impl std::error::Error for LengthError {}
+
 impl<T, const N: usize> TryFrom<Vec<T>> for Array<T, N> {
     type Error = LengthError;
 
