@@ -25,7 +25,7 @@ paste = "1.0.15"
 pretty_assertions = "1.4.0"
 
 [features]
-default = ["rand_full", "step"]
+default = ["rand_full"]
 rand = ["dep:rand"]
 rand_full = ["rand", "rand/std", "rand/std_rng"]
 classic_words = []
