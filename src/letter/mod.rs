@@ -1,4 +1,4 @@
-use std::{collections::BTreeSet, fmt::Write};
+use std::fmt::Write;
 
 pub mod letters;
 pub use letters::Letters;
@@ -10,17 +10,6 @@ mod letter_set;
 pub use letter_set::LetterSet;
 
 pub const ALPHABET: std::ops::RangeInclusive<Letter> = Letter::A..=Letter::Z;
-
-#[cfg(feature = "step")]
-pub fn alphabet_set() -> LetterSet {
-    let mut set = LetterSet::new();
-
-    for letter in ALPHABET {
-        set.insert(letter);
-    }
-
-    set
-}
 
 #[cfg(feature = "serde")]
 mod serde;
@@ -46,6 +35,16 @@ macro_rules! enum_letter {
                     _ => None,
                 }
             }
+        }
+
+        pub fn alphabet_set() -> LetterSet {
+            let mut set = LetterSet::new();
+
+            $(
+                set.insert( Letter::$name );
+            )+
+
+            set
         }
     };
 }
