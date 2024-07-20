@@ -67,7 +67,7 @@ impl<const N: usize> Guesses<N> {
     }
 
     #[cfg(feature = "step")]
-    pub fn unused_letters(&self) -> BTreeSet<Letter> {
+    pub fn unused_letters(&self) -> crate::letter::LetterSet {
         let mut set = crate::letter::alphabet_set();
 
         for guess in &self.vec {

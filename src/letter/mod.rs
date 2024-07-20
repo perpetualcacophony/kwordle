@@ -6,11 +6,14 @@ pub use letters::Letters;
 mod error;
 pub use error::ParseLetterError;
 
+mod letter_set;
+pub use letter_set::LetterSet;
+
 pub const ALPHABET: std::ops::RangeInclusive<Letter> = Letter::A..=Letter::Z;
 
 #[cfg(feature = "step")]
-pub fn alphabet_set() -> BTreeSet<Letter> {
-    let mut set = BTreeSet::new();
+pub fn alphabet_set() -> LetterSet {
+    let mut set = LetterSet::new();
 
     for letter in ALPHABET {
         set.insert(letter);

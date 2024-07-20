@@ -1,6 +1,7 @@
 use std::{collections::BTreeSet, ops::Index};
 
 use super::letter::Letter;
+use crate::letter::LetterSet;
 
 pub mod guesses;
 pub use guesses::Guesses;
@@ -52,14 +53,14 @@ impl<const N: usize> Guess<N> {
     }
 
     #[cfg(feature = "step")]
-    pub fn unused_letters(self) -> BTreeSet<Letter> {
+    pub fn unused_letters(self) -> LetterSet {
         let mut set = crate::letter::alphabet_set();
         self.unused_letters_with(&mut set);
         set
     }
 
     #[cfg(feature = "step")]
-    fn unused_letters_with(self, set: &mut BTreeSet<Letter>) {
+    fn unused_letters_with(self, set: &mut LetterSet) {
         for LetterWithState { letter, .. } in self {
             set.remove(&letter);
         }
