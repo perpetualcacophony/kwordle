@@ -5,11 +5,16 @@ use std::{
 
 use crate::Letter;
 
+#[derive(Debug, Default, PartialEq, PartialOrd, Clone, Hash)]
 pub struct LetterSet(BTreeSet<Letter>);
 
 impl LetterSet {
     pub fn new() -> Self {
         Self(BTreeSet::new())
+    }
+
+    pub fn iter(&self) -> Iter<'_> {
+        Iter::new(self.0.iter())
     }
 }
 
@@ -42,6 +47,15 @@ impl IntoIterator for LetterSet {
     }
 }
 
+impl<'a> IntoIterator for &'a LetterSet {
+    type Item = &'a Letter;
+    type IntoIter = Iter<'a>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.iter()
+    }
+}
+
 pub struct IntoIter<Base = std::collections::btree_set::IntoIter<Letter>> {
     base: Base,
 }
@@ -71,5 +85,37 @@ impl Deref for IntoIter {
 impl DerefMut for IntoIter {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.base
+    }
+}
+
+pub struct Iter<'a> {
+    base: std::collections::btree_set::Iter<'a, Letter>,
+}
+
+impl<'a> Iter<'a> {
+    fn new(base: std::collections::btree_set::Iter<'a, Letter>) -> Self {
+        Self { base }
+    }
+}
+
+impl<'a> Deref for Iter<'a> {
+    type Target = std::collections::btree_set::Iter<'a, Letter>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.base
+    }
+}
+
+impl<'a> DerefMut for Iter<'a> {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.base
+    }
+}
+
+impl<'a> Iterator for Iter<'a> {
+    type Item = &'a Letter;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        self.deref_mut().next()
     }
 }
