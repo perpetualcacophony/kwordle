@@ -1,6 +1,4 @@
-use std::collections::BTreeSet;
-
-use crate::{guess::Guess, Letter};
+use crate::guess::Guess;
 
 #[derive(Clone, Debug)]
 pub struct Guesses<const N: usize = 5> {

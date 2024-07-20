@@ -1,4 +1,4 @@
-use std::{collections::BTreeSet, ops::Index};
+use std::ops::Index;
 
 use super::letter::Letter;
 use crate::letter::LetterSet;
@@ -44,7 +44,7 @@ impl<const N: usize> Guess<N> {
         self.letters.as_slice()
     }
 
-    pub fn as_mut_slice<'g>(&'g mut self) -> &'g mut [LetterWithState] {
+    pub fn as_mut_slice(&mut self) -> &mut [LetterWithState] {
         self.letters.as_mut_slice()
     }
 

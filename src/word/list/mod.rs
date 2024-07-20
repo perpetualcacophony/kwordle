@@ -42,8 +42,6 @@ impl<const N: usize> WordsList<N> {
     pub fn new(guessable: guessable::Guessable<N>, answers: answers::Answers<N>) -> Self {
         let new = if guessable.includes_answers(&answers) {
             Self::new_inclusive
-        } else if guessable.excludes_answers(&answers) {
-            Self::new_exclusive
         } else {
             Self::new_exclusive
         };
