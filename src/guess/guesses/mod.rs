@@ -18,6 +18,14 @@ impl<const N: usize> Guesses<N> {
         }
     }
 
+    pub fn max(&self) -> Option<usize> {
+        self.max
+    }
+
+    pub fn to_vec(self) -> Vec<Guess<N>> {
+        self.vec
+    }
+
     pub fn latest_is_correct(&self) -> bool {
         self.latest().is_some_and(Guess::is_correct)
     }
