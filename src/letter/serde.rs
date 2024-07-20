@@ -3,7 +3,7 @@ impl serde::Serialize for super::Letter {
     where
         S: serde::Serializer,
     {
-        char::serialize(&self.as_char(), serializer)
+        char::serialize(&self.to_char(), serializer)
     }
 }
 
