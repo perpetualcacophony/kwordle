@@ -66,7 +66,6 @@ impl<const N: usize> Guesses<N> {
         self.into_iter()
     }
 
-    #[cfg(feature = "step")]
     pub fn unused_letters(&self) -> crate::letter::LetterSet {
         let mut set = crate::letter::alphabet_set();
 
@@ -89,6 +88,6 @@ impl<'a, const N: usize> IntoIterator for &'a Guesses<N> {
     type IntoIter = std::slice::Iter<'a, Guess<N>>;
 
     fn into_iter(self) -> Self::IntoIter {
-        self.as_slice().into_iter()
+        self.as_slice().iter()
     }
 }
