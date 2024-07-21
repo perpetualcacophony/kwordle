@@ -4,6 +4,7 @@ use serde::Deserialize;
 
 use crate::{Letters, Word, WordsList};
 
+#[derive(Clone, Copy, Debug)]
 pub struct WordDeserializer<'list, const N: usize = 5> {
     list: &'list WordsList<N>,
 }
