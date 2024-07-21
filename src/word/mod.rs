@@ -26,11 +26,6 @@ pub use list::WordsList;
 
 /// Represents a single valid word from a specific [`WordsList`].
 #[derive(Copy, Debug, Clone, Hash, PartialEq, Eq, PartialOrd, Ord)]
-#[cfg_attr(feature = "serde_derive", derive(serde::Serialize, serde::Deserialize))]
-#[cfg_attr(
-    feature = "serde_derive",
-    serde(bound = "[crate::Letter; LEN]: serde::Serialize + for<'a> serde::Deserialize<'a>")
-)]
 pub struct Word<const LEN: usize = 5> {
     letters: Letters<LEN>,
 }
@@ -127,6 +122,12 @@ where
         }
 
         Ok(())
+    }
+}
+
+impl<const LEN: usize> From<Word<LEN>> for Letters<LEN> {
+    fn from(value: Word<LEN>) -> Self {
+        value.letters
     }
 }
 
