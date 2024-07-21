@@ -27,7 +27,7 @@ pub use list::WordsList;
 /// Represents a single valid word from a specific [`WordsList`].
 #[derive(Copy, Debug, Clone, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Word<const LEN: usize = 5> {
-    letters: Letters<LEN>,
+    pub letters: Letters<LEN>,
 }
 
 impl<const LEN: usize> Word<LEN> {
