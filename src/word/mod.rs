@@ -18,6 +18,12 @@ pub use validity::WordValidity;
 
 mod words;
 
+#[cfg(feature = "serde")]
+mod serde;
+
+#[cfg(feature = "serde")]
+pub use serde::WordDeserializer;
+
 #[cfg(test)]
 pub mod constants;
 
@@ -44,7 +50,7 @@ impl<const LEN: usize> Word<LEN> {
     #[cfg(feature = "serde")]
     pub fn serialize_as_str<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
-        S: serde::Serializer,
+        S: ::serde::Serializer,
     {
         serializer.serialize_str(&self.to_string())
     }
