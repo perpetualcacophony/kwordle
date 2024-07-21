@@ -1,6 +1,6 @@
 [package]
 name = "kwordle"
-version = "0.5.4"
+version = "0.5.5"
 edition = "2021"
 repository = "https://github.com/perpetualcacophony/kwordle"
 readme = "README.md"
