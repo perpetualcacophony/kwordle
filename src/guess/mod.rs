@@ -1,5 +1,3 @@
-use std::ops::Index;
-
 use super::letter::Letter;
 use crate::letter::LetterSet;
 
@@ -18,38 +16,38 @@ pub use letter_state::LetterState;
     serde(bound = "Array<LetterWithState, N>: serde::Serialize + for<'a> serde::Deserialize<'a>")
 )]
 pub struct Guess<const N: usize = 5> {
-    letters: Array<LetterWithState, N>,
+    array: Array<(Letter, LetterState), N>,
 }
 
 impl<const N: usize> Guess<N> {
     pub fn none_present(letters: Array<Letter, N>) -> Self {
         Self {
-            letters: Array::new(letters.map(LetterWithState::default)),
+            array: Array::new(letters.map(|letter| (letter, LetterState::NotPresent))),
         }
     }
 
+    pub fn letters(&self) -> std::array::IntoIter<Letter, N> {
+        self.array.map(|(letter, _)| letter).into_iter()
+    }
+
+    pub fn states(&self) -> std::array::IntoIter<LetterState, N> {
+        self.array.map(|(_, state)| state).into_iter()
+    }
+
     pub fn is_correct(self) -> bool {
-        self.into_iter().all(LetterWithState::is_correct)
+        self.states().all(LetterState::is_correct)
     }
 
-    pub fn get(self, index: usize) -> Option<LetterWithState> {
-        self.letters.get(index).copied()
+    pub fn get(self, index: usize) -> Option<(Letter, LetterState)> {
+        self.array.get(index).copied()
     }
 
-    pub fn get_mut(&mut self, index: usize) -> Option<&mut LetterWithState> {
-        self.letters.get_mut(index)
-    }
-
-    pub fn as_slice(&self) -> &[LetterWithState] {
-        self.letters.as_slice()
-    }
-
-    pub fn as_mut_slice(&mut self) -> &mut [LetterWithState] {
-        self.letters.as_mut_slice()
+    pub fn get_mut(&mut self, index: usize) -> Option<(Letter, &mut LetterState)> {
+        self.array.get_mut(index).map(|tup| (tup.0, &mut tup.1))
     }
 
     pub fn iter_mut(&mut self) -> IterMut<'_, N> {
-        self.into_iter()
+        IterMut::new(self)
     }
 
     pub fn unused_letters(self) -> LetterSet {
@@ -59,7 +57,7 @@ impl<const N: usize> Guess<N> {
     }
 
     fn unused_letters_with(self, set: &mut LetterSet) {
-        for LetterWithState { letter, .. } in self {
+        for (letter, _) in self {
             set.remove(&letter);
         }
     }
@@ -98,28 +96,22 @@ impl LetterWithState {
     }
 }
 
-impl<const N: usize> Index<usize> for Guess<N> {
-    type Output = LetterWithState;
-
-    fn index(&self, index: usize) -> &Self::Output {
-        self.letters.index(index)
-    }
-}
+type IntoIterBase<const N: usize> = std::array::IntoIter<(Letter, LetterState), N>;
 
 pub struct IntoIter<const N: usize> {
-    base: std::array::IntoIter<LetterWithState, N>,
+    base: IntoIterBase<N>,
 }
 
 impl<const N: usize> IntoIter<N> {
     fn new(guess: Guess<N>) -> Self {
         Self {
-            base: guess.letters.into_iter(),
+            base: guess.array.into_iter(),
         }
     }
 }
 
 impl<const N: usize> Iterator for IntoIter<N> {
-    type Item = LetterWithState;
+    type Item = (Letter, LetterState);
 
     fn next(&mut self) -> Option<Self::Item> {
         self.base.next()
@@ -128,27 +120,32 @@ impl<const N: usize> Iterator for IntoIter<N> {
 
 impl<const N: usize> IntoIterator for Guess<N> {
     type IntoIter = IntoIter<N>;
-    type Item = LetterWithState;
+    type Item = (Letter, LetterState);
 
     fn into_iter(self) -> Self::IntoIter {
         IntoIter::new(self)
     }
 }
 
+type IterMutBase<'a> = std::iter::Map<
+    std::slice::IterMut<'a, (Letter, LetterState)>,
+    fn(&mut (Letter, LetterState)) -> (Letter, &mut LetterState),
+>;
+
 pub struct IterMut<'g, const N: usize> {
-    base: std::slice::IterMut<'g, LetterWithState>,
+    base: IterMutBase<'g>,
 }
 
 impl<'g, const N: usize> IterMut<'g, N> {
     fn new(guess: &'g mut Guess<N>) -> Self {
         Self {
-            base: guess.letters.iter_mut(),
+            base: guess.array.iter_mut().map(|tup| (tup.0, &mut tup.1)),
         }
     }
 }
 
 impl<'g, const N: usize> Iterator for IterMut<'g, N> {
-    type Item = &'g mut LetterWithState;
+    type Item = (Letter, &'g mut LetterState);
 
     fn next(&mut self) -> Option<Self::Item> {
         self.base.next()
@@ -156,17 +153,17 @@ impl<'g, const N: usize> Iterator for IterMut<'g, N> {
 }
 
 impl<'g, const N: usize> IntoIterator for &'g mut Guess<N> {
-    type Item = &'g mut LetterWithState;
+    type Item = (Letter, &'g mut LetterState);
     type IntoIter = IterMut<'g, N>;
 
     fn into_iter(self) -> Self::IntoIter {
-        IterMut::new(self)
+        self.iter_mut()
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use super::{Array, Guess, LetterState};
+    use super::LetterState;
 
     mod fmt {
         pub trait Test {
@@ -206,13 +203,10 @@ mod tests {
         }
     }
 
-    impl<const N: usize> fmt::Test for Guess<N>
-    where
-        Guess<N>: Copy,
-    {
+    impl fmt::Test for Vec<LetterState> {
         fn fmt(&self, f: &mut impl std::fmt::Write) -> std::fmt::Result {
-            for letter in *self {
-                fmt::Test::fmt(&letter.state(), f)?;
+            for state in self {
+                fmt::Test::fmt(state, f)?;
             }
 
             Ok(())
@@ -222,14 +216,11 @@ mod tests {
         where
             Self: Sized,
         {
-            let letters_states = s
-                .chars()
-                .filter_map(|ch| LetterState::from_str(&ch.to_string()))
-                .map(|l| super::LetterWithState::new(crate::Letter::A, l));
-
-            Some(Self {
-                letters: Array::from_iter(letters_states).ok()?,
-            })
+            Some(
+                s.chars()
+                    .filter_map(|ch| LetterState::from_str(&ch.to_string()))
+                    .collect(),
+            )
         }
     }
 
@@ -244,7 +235,7 @@ mod tests {
                         let word: crate::Word<5> = crate::Word::from_str_unchecked(&stringify!($word)).unwrap();
                         let guess = word.guess(crate::Word::from_str_unchecked(&stringify!($guess)).unwrap());
                         pretty_assertions::assert_eq!(
-                            guess.to_string(), $result
+                            guess.states().collect::<Vec<_>>().to_string(), $result
                         )
                     }
                 )+

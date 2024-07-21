@@ -86,18 +86,18 @@ impl<const LEN: usize> Word<LEN> {
         let mut guess = crate::guess::Guess::none_present(word.letters);
         let mut map = self.letters_map();
 
-        for (guess, answer) in guess.iter_mut().zip(self.letters.into_iter()) {
-            if guess.letter() == answer {
-                guess.set_state(LetterState::Correct);
-                map.decrement(guess.letter());
+        for ((letter, state), answer) in guess.iter_mut().zip(self.letters.into_iter()) {
+            if letter == answer {
+                *state = LetterState::Correct;
+                map.decrement(letter);
             }
         }
 
-        for guess in guess.iter_mut() {
+        for (letter, state) in guess.iter_mut() {
             // i don't know why i need to check for correctness again? whatev
-            if map.contains_letter(guess.letter()) && guess.state() != LetterState::Correct {
-                guess.set_state(LetterState::WrongPlace);
-                map.decrement(guess.letter());
+            if map.contains_letter(letter) && *state != LetterState::Correct {
+                *state = LetterState::WrongPlace;
+                map.decrement(letter);
             }
         }
 
