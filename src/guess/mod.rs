@@ -13,7 +13,9 @@ pub use letter_state::LetterState;
 #[cfg_attr(feature = "serde_derive", derive(serde::Serialize, serde::Deserialize))]
 #[cfg_attr(
     feature = "serde_derive",
-    serde(bound = "Array<LetterWithState, N>: serde::Serialize + for<'a> serde::Deserialize<'a>")
+    serde(
+        bound = "Array<(Letter, LetterState), N>: serde::Serialize + for<'a> serde::Deserialize<'a>"
+    )
 )]
 pub struct Guess<const N: usize = 5> {
     array: Array<(Letter, LetterState), N>,
