@@ -8,7 +8,7 @@ pub fn parse_from_str<const N: usize>(s: &str) -> Result<Box<[Word<N>]>, ParseLe
         .map(Letters::from_str)
         .collect::<Result<Vec<_>, _>>()?
         .into_iter()
-        .map(Word::new_unchecked);
+        .map(|letters| unsafe { Word::new_unchecked(letters) });
 
     Ok(words.collect())
 }

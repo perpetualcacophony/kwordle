@@ -232,11 +232,13 @@ mod tests {
                     fn [<$word _ $guess>]() {
                         use fmt::Test;
 
-                        let word: crate::Word<5> = crate::Word::from_str_unchecked(&stringify!($word)).unwrap();
-                        let guess = word.guess(crate::Word::from_str_unchecked(&stringify!($guess)).unwrap());
-                        pretty_assertions::assert_eq!(
-                            guess.states().collect::<Vec<_>>().to_string(), $result
-                        )
+                        unsafe {
+                            let word: crate::Word<5> = crate::Word::from_str_unchecked(&stringify!($word)).unwrap();
+                            let guess = word.guess(crate::Word::from_str_unchecked(&stringify!($guess)).unwrap());
+                            pretty_assertions::assert_eq!(
+                                guess.states().collect::<Vec<_>>().to_string(), $result
+                            )
+                        }
                     }
                 )+
             }

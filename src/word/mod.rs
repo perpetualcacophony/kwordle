@@ -36,12 +36,12 @@ pub struct Word<const LEN: usize = 5> {
 }
 
 impl<const LEN: usize> Word<LEN> {
-    pub(crate) fn new_unchecked(letters: Letters<LEN>) -> Self {
+    pub unsafe fn new_unchecked(letters: Letters<LEN>) -> Self {
         Self { letters }
     }
 
     #[allow(dead_code)]
-    pub(crate) fn from_str_unchecked(s: &str) -> Result<Self, ParseLettersError> {
+    pub unsafe fn from_str_unchecked(s: &str) -> Result<Self, ParseLettersError> {
         let letters = Letters::from_str(s)?;
         Ok(Self::new_unchecked(letters))
     }
@@ -54,13 +54,11 @@ impl<const LEN: usize> Word<LEN> {
         list: &WordsList<LEN>,
         letters: Letters<LEN>,
     ) -> Result<Self, error::ParseWordError> {
-        let unchecked = Self::new_unchecked(letters);
-
-        if list.guessable.contains(unchecked) {
-            Ok(unchecked)
+        if list.guessable.contains_letters(letters) {
+            unsafe { Ok(Self::new_unchecked(letters)) }
         } else {
             Err(error::ParseWordError::NotInList {
-                letters: unchecked.letters.to_vec(),
+                letters: letters.to_vec(),
             })
         }
     }

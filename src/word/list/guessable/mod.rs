@@ -47,7 +47,7 @@ impl<const N: usize> Guessable<N> {
     }
 
     pub fn contains_letters(&self, letters: Letters<N>) -> bool {
-        self.contains(Word::new_unchecked(letters))
+        self.contains(unsafe { Word::new_unchecked(letters) })
     }
 
     pub fn iter(&self) -> std::collections::hash_set::Iter<'_, Word<N>> {
