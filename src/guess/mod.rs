@@ -18,22 +18,22 @@ pub use letter_state::LetterState;
     )
 )]
 pub struct Guess<const N: usize = 5> {
-    array: Array<(Letter, LetterState), N>,
+    letters: Array<(Letter, LetterState), N>,
 }
 
 impl<const N: usize> Guess<N> {
     pub fn none_present(letters: Array<Letter, N>) -> Self {
         Self {
-            array: Array::new(letters.map(|letter| (letter, LetterState::NotPresent))),
+            letters: Array::new(letters.map(|letter| (letter, LetterState::NotPresent))),
         }
     }
 
     pub fn letters(&self) -> std::array::IntoIter<Letter, N> {
-        self.array.map(|(letter, _)| letter).into_iter()
+        self.letters.map(|(letter, _)| letter).into_iter()
     }
 
     pub fn states(&self) -> std::array::IntoIter<LetterState, N> {
-        self.array.map(|(_, state)| state).into_iter()
+        self.letters.map(|(_, state)| state).into_iter()
     }
 
     pub fn is_correct(self) -> bool {
@@ -41,11 +41,11 @@ impl<const N: usize> Guess<N> {
     }
 
     pub fn get(self, index: usize) -> Option<(Letter, LetterState)> {
-        self.array.get(index).copied()
+        self.letters.get(index).copied()
     }
 
     pub fn get_mut(&mut self, index: usize) -> Option<(Letter, &mut LetterState)> {
-        self.array.get_mut(index).map(|tup| (tup.0, &mut tup.1))
+        self.letters.get_mut(index).map(|tup| (tup.0, &mut tup.1))
     }
 
     pub fn iter_mut(&mut self) -> IterMut<'_, N> {
@@ -107,7 +107,7 @@ pub struct IntoIter<const N: usize> {
 impl<const N: usize> IntoIter<N> {
     fn new(guess: Guess<N>) -> Self {
         Self {
-            base: guess.array.into_iter(),
+            base: guess.letters.into_iter(),
         }
     }
 }
@@ -141,7 +141,7 @@ pub struct IterMut<'g, const N: usize> {
 impl<'g, const N: usize> IterMut<'g, N> {
     fn new(guess: &'g mut Guess<N>) -> Self {
         Self {
-            base: guess.array.iter_mut().map(|tup| (tup.0, &mut tup.1)),
+            base: guess.letters.iter_mut().map(|tup| (tup.0, &mut tup.1)),
         }
     }
 }
